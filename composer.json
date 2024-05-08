@@ -1,0 +1,14 @@
+{
+  "name": "drupal/pcx_connect",
+  "description": "Drupal Module for PCC Integration.",
+  "type": "drupal-module",
+  "license": "GPL-2.0-or-later",
+  "homepage": "https://drupal.org/project/pcx_connect",
+  "extra": {
+    "drush": {
+      "services": {
+        "drush.services.yml": "^9 || ^10 || ^11"
+      }
+    }
+  }
+}

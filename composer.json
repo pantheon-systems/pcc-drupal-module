@@ -10,5 +10,6 @@
         "drush.services.yml": "^9 || ^10 || ^11"
       }
     }
-  }
+  },
+  "version": "0.0.1"
 }

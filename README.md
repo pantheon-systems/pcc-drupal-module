@@ -1,3 +1,3 @@
-# PCX Connect | PCC Integration
+# PCX Connect
 
 Drupal Module for PCC Integration

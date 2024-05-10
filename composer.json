@@ -1,5 +1,5 @@
 {
-  "name": "drupal/pcx_connect",
+  "name": "digitalpolygon/pcx_connect",
   "description": "Drupal Module for PCC Integration.",
   "type": "drupal-module",
   "license": "GPL-2.0-or-later",

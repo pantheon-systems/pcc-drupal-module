@@ -1,4 +1,4 @@
-name: 'PCX Connect'
+name: 'PCX Connect | PCC Integration'
 description: 'Drupal Module for PCC Integration.'
 package: 'PCC'
 core_version_requirement: ^9.3 || ^10

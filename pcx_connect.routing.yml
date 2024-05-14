@@ -1,0 +1,31 @@
+entity.pcc_site.collection:
+  path: '/admin/config/system/pcx_connect'
+  defaults:
+    _entity_list: 'pcc_site'
+    _title: 'PCC Site configuration'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.pcc_site.add_form:
+  path: '/admin/config/system/pcx_connect/add'
+  defaults:
+    _entity_form: 'pcc_site.add'
+    _title: 'Add PCC Site'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.pcc_site.edit_form:
+  path: '/admin/config/system/pcx_connect/{pcc_site}'
+  defaults:
+    _entity_form: 'pcc_site.edit'
+    _title: 'Edit PCC Site'
+  requirements:
+    _permission: 'administer site configuration'
+
+entity.pcc_site.delete_form:
+  path: '/admin/config/system/pcx_connect/{pcc_site}/delete'
+  defaults:
+    _entity_form: 'pcc_site.delete'
+    _title: 'Delete PCC Site'
+  requirements:
+    _permission: 'administer site configuration'

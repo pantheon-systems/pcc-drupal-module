@@ -1,0 +1,5 @@
+entity.pcc_site.add_form:
+  route_name: 'entity.pcc_site.add_form'
+  title: 'Add PCC Site'
+  appears_on:
+    - entity.pcc_site.collection

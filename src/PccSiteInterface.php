@@ -10,34 +10,34 @@ use Drupal\Core\Config\Entity\ConfigEntityInterface;
 interface PccSiteInterface extends ConfigEntityInterface {
 
   /**
-   * Getter for captcha type property.
+   * Getter for pcc site token property.
    *
    * @return string
-   *   Captcha type.
+   *   pcc site key.
    */
   public function getSiteKey();
 
   /**
-   * Getter for captcha type property.
+   * Getter for pcc site token property.
    *
    * @return string
-   *   Captcha type.
+   *   pcc site token.
    */
   public function getSiteToken();
 
   /**
-   * Getter for captcha type property.
+   * Getter for pcc site name property.
    *
    * @return string
-   *   Captcha type.
+   *   pcc site name.
    */
   public function getSiteName();
 
   /**
-   * Getter for captcha type property.
+   * Getter for pcc site url property.
    *
    * @return string
-   *   Captcha type.
+   *   pcc site url.
    */
   public function getSiteUrl();
 

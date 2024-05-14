@@ -31,8 +31,6 @@ class PccSiteListBuilder extends ConfigEntityListBuilder {
     $row['site_key'] = $entity->getSiteKey();
     $row['site_token'] = $entity->getSiteToken();
     $row['site_url'] = $entity->getSiteUrl();
-
-    // You probably want a few more properties here...
     return $row + parent::buildRow($entity);
   }
 

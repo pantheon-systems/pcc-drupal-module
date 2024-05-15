@@ -75,12 +75,15 @@ class PccSiteForm extends EntityForm {
     ];
 
     $form['site_url'] = [
-      '#type' => 'textfield',
+      '#type' => 'url',
       '#title' => $this->t('Site URL'),
       '#maxlength' => 255,
       '#default_value' => (gettype($pcc_site->getSiteUrl()) === 'string') ? $pcc_site->getSiteUrl() : '',
       '#description' => $this->t("Site URL for PCC Site."),
       '#required' => TRUE,
+      '#attributes' => [
+        'placeholder' => 'https://',
+      ],
     ];
 
     // You will need additional form elements for your custom properties.

@@ -34,8 +34,8 @@ final class PccSiteEventSubscriber implements EventSubscriberInterface {
       foreach ($pcc_site_configs as $pcc_site_config) {
         $pcc_site = $storage->read($pcc_site_config);
         // Prevent the site_key and site_token from being exported.
-        $pcc_site['site_key'] = '';
-        $pcc_site['site_token'] = '';
+        // $pcc_site['site_key'] = '';
+        // $pcc_site['site_token'] = '';
         // Write to the storage from the event to alter it.
         $storage->write($pcc_site_config, $pcc_site);
       }

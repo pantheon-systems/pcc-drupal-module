@@ -40,7 +40,7 @@ class PccSiteForm extends EntityForm {
 
     $form['label'] = [
       '#type' => 'textfield',
-      '#title' => $this->t('PCC Site Name'),
+      '#title' => $this->t('Site Name'),
       '#maxlength' => 255,
       '#default_value' => $pcc_site->label(),
       '#description' => $this->t("Name for the PCC Site."),
@@ -60,7 +60,7 @@ class PccSiteForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => $this->t('Site Key'),
       '#maxlength' => 255,
-      '#default_value' => (gettype($pcc_site->getSiteKey()) === 'string') ? $pcc_site->getSiteKey() : '',
+      '#default_value' => $pcc_site->get('site_key') ?: '',
       '#description' => $this->t("Site Key for PCC Site."),
       '#required' => TRUE,
     ];
@@ -69,7 +69,7 @@ class PccSiteForm extends EntityForm {
       '#type' => 'textfield',
       '#title' => $this->t('Site Token'),
       '#maxlength' => 255,
-      '#default_value' => (gettype($pcc_site->getSiteToken()) === 'string') ? $pcc_site->getSiteToken() : '',
+      '#default_value' => $pcc_site->get('site_token') ?: '',
       '#description' => $this->t("Site token for PCC Site."),
       '#required' => TRUE,
     ];
@@ -78,7 +78,7 @@ class PccSiteForm extends EntityForm {
       '#type' => 'url',
       '#title' => $this->t('Site URL'),
       '#maxlength' => 255,
-      '#default_value' => (gettype($pcc_site->getSiteUrl()) === 'string') ? $pcc_site->getSiteUrl() : '',
+      '#default_value' => $pcc_site->get('site_url') ?: '',
       '#description' => $this->t("Site URL for PCC Site."),
       '#required' => TRUE,
       '#attributes' => [

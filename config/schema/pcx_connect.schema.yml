@@ -1,6 +1,6 @@
 pcx_connect.pcc_site.*:
   type: config_entity
-  label: 'Site config'
+  label: 'PCC Site config'
   mapping:
     id:
       type: string

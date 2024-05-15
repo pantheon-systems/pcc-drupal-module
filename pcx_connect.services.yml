@@ -1,5 +1,0 @@
-services:
-  pcx_connect.redirection:
-    class: Drupal\pcx_connect\EventSubscriber\PccSiteEventSubscriber
-    tags:
-      - { name: event_subscriber }

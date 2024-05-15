@@ -20,7 +20,7 @@ use Drupal\pcx_connect\PccSiteInterface;
  *     }
  *   },
  *   config_prefix = "pcc_site",
- *   admin_permission = "administer site configuration",
+ *   admin_permission = "pcx_connect pcc_site configuration",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",
@@ -53,75 +53,5 @@ class PccSite extends ConfigEntityBase implements PccSiteInterface {
    * @var string
    */
   protected $label;
-
-  /**
-   * The PCC Site key.
-   *
-   * @var string
-   */
-  protected $site_key;
-
-  /**
-   * The pcc site token.
-   *
-   * @var string
-   */
-  protected $site_token;
-
-  /**
-   * The PCC site URL.
-   *
-   * @var string
-   */
-  protected $site_url;
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSiteKey() {
-    if (isset($this->site_key)) {
-      return $this->site_key;
-    }
-    else {
-      return static::getConfigManager()
-        ->getConfigFactory()
-        ->get('site_key');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSiteToken() {
-    if (isset($this->site_token)) {
-      return $this->site_token;
-    }
-    else {
-      return static::getConfigManager()
-        ->getConfigFactory()
-        ->get('site_token');
-    }
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSiteName() {
-    return $this->label;
-  }
-
-  /**
-   * {@inheritdoc}
-   */
-  public function getSiteUrl() {
-    if (isset($this->site_url)) {
-      return $this->site_url;
-    }
-    else {
-      return static::getConfigManager()
-        ->getConfigFactory()
-        ->get('site_url');
-    }
-  }
 
 }

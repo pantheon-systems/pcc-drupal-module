@@ -1,0 +1,6 @@
+pcx_connect.api_status:
+  path: '/api/pantheoncloud/status'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\ApiStatusController::emptyResponse'
+  requirements:
+    _access: 'TRUE'

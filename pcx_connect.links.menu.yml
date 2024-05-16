@@ -1,0 +1,5 @@
+entity.pcc_site.collection:
+  title: 'PCC Sites'
+  parent: system.admin_structure
+  description: 'Configure PCC Sites'
+  route_name: entity.pcc_site.collection

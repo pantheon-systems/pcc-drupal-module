@@ -1,0 +1,19 @@
+pcx_connect.pcc_site.*:
+  type: config_entity
+  label: 'PCC Site config'
+  mapping:
+    id:
+      type: string
+      label: 'ID'
+    label:
+      type: label
+      label: 'PCC Site Name'
+    site_key:
+      type: string
+      label: 'PCC Site Key'
+    site_token:
+      type: string
+      label: 'PCC Site Token'
+    site_url:
+      type: string
+      label: 'PCC Site URL'

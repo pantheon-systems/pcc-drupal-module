@@ -1,0 +1,3 @@
+administer pcc configurations:
+  title: 'PCC site configuration'
+  restrict access: true

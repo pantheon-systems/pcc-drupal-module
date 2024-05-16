@@ -1,3 +1,35 @@
+entity.pcc_site.collection:
+  path: '/admin/structure/pcc_sites'
+  defaults:
+    _entity_list: 'pcc_site'
+    _title: 'PCC Sites'
+  requirements:
+    _permission: 'administer pcc configurations'
+
+entity.pcc_site.add_form:
+  path: '/admin/structure/pcc_sites/add'
+  defaults:
+    _entity_form: 'pcc_site.add'
+    _title: 'Add PCC Site'
+  requirements:
+    _permission: 'administer pcc configurations'
+
+entity.pcc_site.edit_form:
+  path: '/admin/structure/pcc_sites/{pcc_site}'
+  defaults:
+    _entity_form: 'pcc_site.edit'
+    _title: 'Edit PCC Site'
+  requirements:
+    _permission: 'administer pcc configurations'
+
+entity.pcc_site.delete_form:
+  path: '/admin/structure/pcc_sites/{pcc_site}/delete'
+  defaults:
+    _entity_form: 'pcc_site.delete'
+    _title: 'Delete PCC Site'
+  requirements:
+    _permission: 'administer pcc configurations'
+
 pcx_connect.api_status:
   path: '/api/pantheoncloud/status'
   defaults:

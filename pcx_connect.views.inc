@@ -16,12 +16,13 @@ function pcx_connect_views_data() {
 
   $pcc_sites = PccSite::loadMultiple();
   if ($pcc_sites) {
+    $translation = \Drupal::translation();
     foreach ($pcc_sites as $pcc_site) {
       $id = $pcc_site->getEntityTypeId();
       $name = $pcc_site->label();
       $table = &$data[$pcc_site->id()];
       // Base data.
-      $table['table']['group'] = t('PCC Site - @name', ['@name' => $name]);
+      $table['table']['group'] = $translation->translate('PCC Site - @name', ['@name' => $name]);
       $table['table']['provider'] = $id;
 
       // Locate the config entity type's ID.
@@ -42,14 +43,14 @@ function pcx_connect_views_data() {
       $table['table']['base'] = [
         'field' => strtolower($fields[$id_key]['label']),
         'index' => strtolower($fields[$id_key]['label']),
-        'title' => t('PCC Site - @name', ['@name' => $name]),
-        'help' => t('Use the ConfigEntity @name to view the data.', ['@name' => $name]),
+        'title' => $translation->translate('PCC Site - @name', ['@name' => $name]),
+        'help' => $translation->translate('Use the ConfigEntity @name to view the data.', ['@name' => $name]),
         'query_id' => 'pcc_site_view_query',
       ];
 
       $table['title'] = [
-        'title' => t('Title'),
-        'help' => t('Article title'),
+        'title' => $translation->translate('Title'),
+        'help' => $translation->translate('Article title'),
         'field' => [
           'id' => 'standard',
           'click sortable' => TRUE,
@@ -66,8 +67,8 @@ function pcx_connect_views_data() {
       ];
 
       $table['content'] = [
-        'title' => t('Content'),
-        'help' => t('Article Content'),
+        'title' => $translation->translate('Content'),
+        'help' => $translation->translate('Article Content'),
         'field' => [
           'id' => 'standard',
           'click sortable' => FALSE,
@@ -78,8 +79,8 @@ function pcx_connect_views_data() {
       ];
 
       $table['snippet'] = [
-        'title' => t('Snippet'),
-        'help' => t('Article Snippet'),
+        'title' => $translation->translate('Snippet'),
+        'help' => $translation->translate('Article Snippet'),
         'field' => [
           'id' => 'standard',
           'click sortable' => FALSE,
@@ -90,8 +91,8 @@ function pcx_connect_views_data() {
       ];
 
       $table['publishedAt'] = [
-        'title' => t('Published At'),
-        'help' => t('Article publish time'),
+        'title' => $translation->translate('Published At'),
+        'help' => $translation->translate('Article publish time'),
         'field' => [
           'id' => 'date',
           'click sortable' => TRUE,
@@ -108,8 +109,8 @@ function pcx_connect_views_data() {
       ];
 
       $table['updatedAt'] = [
-        'title' => t('Updated At'),
-        'help' => t('Article update time'),
+        'title' => $translation->translate('Updated At'),
+        'help' => $translation->translate('Article update time'),
         'field' => [
           'id' => 'date',
           'click sortable' => TRUE,

@@ -5,7 +5,6 @@ namespace Drupal\pcx_connect\Entity;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\pcx_connect\PccSiteInterface;
-use Drupal\views\Views;
 
 /**
  * Defines the PCC Site entity.
@@ -41,6 +40,27 @@ use Drupal\views\Views;
  * )
  */
 class PccSite extends ConfigEntityBase implements PccSiteInterface {
+  /**
+   * The module handler.
+   *
+   * @var \Drupal\Core\Extension\ModuleHandlerInterface
+   */
+  protected $module_handler;
+
+  /**
+   * The views data service.
+   *
+   * @var \Drupal\views\ViewsData
+   */
+  protected $views_data;
+
+
+  /**
+   * The cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cache_discovery;
 
   /**
    * The PCC Site ID.
@@ -59,13 +79,24 @@ class PccSite extends ConfigEntityBase implements PccSiteInterface {
   /**
    * {@inheritdoc}
    */
+  public function __construct(array $values, $entity_type) {
+    $this->module_handler = \Drupal::service('module_handler');
+    $this->views_data = \Drupal::service('views.views_data');
+    $this->cache_discovery = \Drupal::service('cache.discovery');
+
+    parent::__construct($values, $entity_type);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
   public function postSave(EntityStorageInterface $storage, $update = TRUE) {
     parent::postSave($storage, $update);
 
     // Clear cache to populate the PCC site in views.
-    if (\Drupal::moduleHandler()->moduleExists('views')) {
-      Views::viewsData()->clear();
-      \Drupal::cache('discovery')->delete('views:wizard');
+    if ($this->module_handler->moduleExists('views')) {
+      $this->views_data->clear();
+      $this->cache_discovery->delete('views:wizard');
     }
   }
 

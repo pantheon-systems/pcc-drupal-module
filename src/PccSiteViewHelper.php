@@ -6,6 +6,12 @@ namespace Drupal\pcx_connect;
  * Helper methods for adding custom behavior to the view.
  */
 class PccSiteViewHelper {
+  /**
+   * Caching the config prefix.
+   *
+   * @var array
+   */
+  protected static $configPrefixCache = [];
 
   /**
    * Retrieves mapping for Config Entity.
@@ -13,7 +19,7 @@ class PccSiteViewHelper {
    * @param string $id
    *   Config Entity id.
    *
-   * @return array|null
+   * @return array
    *   Returns array of Entity attributes.
    *
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
@@ -48,7 +54,12 @@ class PccSiteViewHelper {
    * @throws \Drupal\Component\Plugin\Exception\PluginNotFoundException
    */
   protected static function getConfigPrefix(string $id): string {
-    return \Drupal::entityTypeManager()->getDefinition($id)->getConfigPrefix();
+    if (isset(self::$configPrefixCache[$id])) {
+      return self::$configPrefixCache[$id];
+    }
+    $configPrefix = \Drupal::entityTypeManager()->getDefinition($id)->getConfigPrefix();
+    self::$configPrefixCache[$id] = $configPrefix;
+    return $configPrefix;
   }
 
   /**

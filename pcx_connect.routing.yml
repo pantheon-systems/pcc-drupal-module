@@ -4,7 +4,7 @@ entity.pcc_site.collection:
     _entity_list: 'pcc_site'
     _title: 'PCC Sites'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer pcc configurations'
 
 entity.pcc_site.add_form:
   path: '/admin/structure/pcc_sites/add'
@@ -12,7 +12,7 @@ entity.pcc_site.add_form:
     _entity_form: 'pcc_site.add'
     _title: 'Add PCC Site'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer pcc configurations'
 
 entity.pcc_site.edit_form:
   path: '/admin/structure/pcc_sites/{pcc_site}'
@@ -20,7 +20,7 @@ entity.pcc_site.edit_form:
     _entity_form: 'pcc_site.edit'
     _title: 'Edit PCC Site'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer pcc configurations'
 
 entity.pcc_site.delete_form:
   path: '/admin/structure/pcc_sites/{pcc_site}/delete'
@@ -28,4 +28,11 @@ entity.pcc_site.delete_form:
     _entity_form: 'pcc_site.delete'
     _title: 'Delete PCC Site'
   requirements:
-    _permission: 'administer site configuration'
+    _permission: 'administer pcc configurations'
+
+pcx_connect.api_status:
+  path: '/api/pantheoncloud/status'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\ApiStatusController::emptyResponse'
+  requirements:
+    _access: 'TRUE'

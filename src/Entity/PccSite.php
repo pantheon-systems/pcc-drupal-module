@@ -20,7 +20,7 @@ use Drupal\pcx_connect\PccSiteInterface;
  *     }
  *   },
  *   config_prefix = "pcc_site",
- *   admin_permission = "pcx_connect pcc_site configuration",
+ *   admin_permission = "administer pcc configurations",
  *   entity_keys = {
  *     "id" = "id",
  *     "label" = "label",

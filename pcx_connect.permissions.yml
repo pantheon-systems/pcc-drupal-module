@@ -1,3 +1,3 @@
-pcx_connect pcc_site configuration:
+administer pcc configurations:
   title: 'PCC site configuration'
   restrict access: true

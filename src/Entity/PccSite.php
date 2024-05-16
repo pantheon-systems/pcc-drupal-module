@@ -3,7 +3,9 @@
 namespace Drupal\pcx_connect\Entity;
 
 use Drupal\Core\Config\Entity\ConfigEntityBase;
+use Drupal\Core\Entity\EntityStorageInterface;
 use Drupal\pcx_connect\PccSiteInterface;
+use Drupal\views\Views;
 
 /**
  * Defines the PCC Site entity.
@@ -53,5 +55,18 @@ class PccSite extends ConfigEntityBase implements PccSiteInterface {
    * @var string
    */
   protected $label;
+
+  /**
+   * {@inheritdoc}
+   */
+  public function postSave(EntityStorageInterface $storage, $update = TRUE) {
+    parent::postSave($storage, $update);
+
+    // Clear cache to populate the PCC site in views.
+    if (\Drupal::moduleHandler()->moduleExists('views')) {
+      Views::viewsData()->clear();
+      \Drupal::cache('discovery')->delete('views:wizard');
+    }
+  }
 
 }

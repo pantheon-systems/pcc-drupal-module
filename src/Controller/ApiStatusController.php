@@ -19,5 +19,4 @@ class ApiStatusController extends ControllerBase {
   public function emptyResponse() {
     return new JsonResponse();
   }
-
 }

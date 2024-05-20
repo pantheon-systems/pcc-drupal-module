@@ -1,0 +1,4 @@
+services:
+  pcx_connect.pcc_content_api:
+    class: Drupal\pcx_connect\Service\PccContentApi
+    arguments: ['@logger.factory']

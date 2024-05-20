@@ -88,19 +88,25 @@ class PccSiteViewQuery extends QueryPluginBase {
     $base_table = $view->storage->get('base_table');
     $pcc_site = PccSite::load($base_table);
     if ($pcc_site) {
-      $api_response = $this->performApiRequest($pcc_site->get('site_token'), $pcc_site->get('site_key'));
-      if (!empty($api_response['data'])) {
-        $index = 0;
-        foreach ($api_response['data']['articles'] as $data) {
-          $row['id'] = $pcc_site->id();
-          $row['title'] = $data['title'];
-          $row['content'] = $data['content'];
-          $row['snippet'] = $data['snippet'];
-          $row['publishedAt'] = ((int) $data['publishedDate'] / 1000);
-          $row['updatedAt'] = ((int) $data['updatedAt'] / 1000);
-          $row['index'] = $index++;
-          $view->result[] = new ResultRow($row);
+      try {
+        $api_response = $this->performApiRequest($pcc_site->get('site_token'), $pcc_site->get('site_key'));
+        if (!empty($api_response['data'])) {
+          $index = 0;
+          foreach ($api_response['data']['articles'] as $data) {
+            $row['id'] = $pcc_site->id();
+            $row['title'] = $data['title'];
+            $row['content'] = $data['content'];
+            $row['snippet'] = $data['snippet'];
+            $row['publishedAt'] = ((int) $data['publishedDate'] / 1000);
+            $row['updatedAt'] = ((int) $data['updatedAt'] / 1000);
+            $row['index'] = $index++;
+            $view->result[] = new ResultRow($row);
+          }
         }
+      }
+      catch (\Exception $e) {
+        \Drupal::logger('pcx_connect')->error('Failed to load views output: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
+        $this->execute($view);
       }
     }
   }
@@ -149,7 +155,7 @@ class PccSiteViewQuery extends QueryPluginBase {
       $data = json_decode($body, TRUE);
     }
     catch (RequestException $e) {
-      \Drupal::logger('invalid response')->error('<pre>' . print_r($e, TRUE));
+      \Drupal::logger('pcx_connect')->error('Failed to fetch data from GraphQL endpoint: <pre>' . print_r($e, TRUE) . '</pre>');
     }
     return $data;
   }

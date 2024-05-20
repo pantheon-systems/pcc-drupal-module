@@ -76,6 +76,9 @@ function pcx_connect_views_data() {
         'filter' => [
           'id' => 'string',
         ],
+        'argument' => [
+          'id' => 'string',
+        ],
       ];
 
       $table['snippet'] = [
@@ -86,6 +89,9 @@ function pcx_connect_views_data() {
           'click sortable' => FALSE,
         ],
         'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
           'id' => 'string',
         ],
       ];

@@ -2,10 +2,12 @@
 
 namespace Drupal\pcx_connect\Plugin\views\query;
 
+use Drupal\pcx_connect\Entity\PccSite;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use GuzzleHttp\ClientInterface;
+use Http\Client\Exception\RequestException;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -18,6 +20,7 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class PccSiteViewQuery extends QueryPluginBase {
+  const GRAPHQL_ENDPOINT = 'https://gql.prod.pcc.pantheon.io/sites';
 
   /**
    * Constructs a PccSiteViewQuery object.
@@ -82,12 +85,73 @@ class PccSiteViewQuery extends QueryPluginBase {
    * {@inheritdoc}
    */
   public function execute(ViewExecutable $view): void {
-    // @todo This will need in coming tickets, so keep it now.
-    // $base_table = $view->storage->get('base_table');
-    // Load current pcc site.
-    // $pcc_site = PccSite::load($base_table);
-    $row = [];
-    $view->result[] = new ResultRow($row);
+    $base_table = $view->storage->get('base_table');
+    $pcc_site = PccSite::load($base_table);
+    if ($pcc_site) {
+      $api_response = $this->performApiRequest($pcc_site->get('site_token'), $pcc_site->get('site_key'));
+      if (!empty($api_response['data'])) {
+        $index = 0;
+        foreach ($api_response['data']['articles'] as $data) {
+          $row['id'] = $pcc_site->id();
+          $row['title'] = $data['title'];
+          $row['content'] = $data['content'];
+          $row['snippet'] = $data['snippet'];
+          $row['publishedAt'] = ((int) $data['publishedDate'] / 1000);
+          $row['updatedAt'] = ((int) $data['updatedAt'] / 1000);
+          $row['index'] = $index++;
+          $view->result[] = new ResultRow($row);
+        }
+      }
+    }
+  }
+
+  /**
+   * Perform the graphql query.
+   *
+   * @param string $token
+   *   The site token.
+   * @param string $site_key
+   *   The site key.
+   *
+   * @return array
+   *   The API response.
+   */
+  protected function performApiRequest(string $token, string $site_key): array {
+    $data = [];
+    $graphql_endpoint = self::GRAPHQL_ENDPOINT;
+    try {
+      // Execute post request to salesforce".
+      $url = "$graphql_endpoint/$site_key/query";
+      $query = <<<'GRAPHQL'
+      {
+          articles (pageSize: 10, contentType: TREE_PANTHEON_V2) {
+              title
+              content
+              snippet
+              publishedDate
+              updatedAt
+          }
+      }
+      GRAPHQL;
+
+      $headers = [
+        'PCC-TOKEN' => $token,
+        'Content-Type' => 'application/json',
+      ];
+
+      $response = $this->httpClient->post($url, [
+        'headers' => $headers,
+        'json' => [
+          'query' => $query,
+        ],
+      ]);
+      $body = $response->getBody();
+      $data = json_decode($body, TRUE);
+    }
+    catch (RequestException $e) {
+      \Drupal::logger('invalid response')->error('<pre>' . print_r($e, TRUE));
+    }
+    return $data;
   }
 
 }

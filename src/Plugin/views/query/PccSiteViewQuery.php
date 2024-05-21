@@ -3,7 +3,7 @@
 namespace Drupal\pcx_connect\Plugin\views\query;
 
 use Drupal\pcx_connect\Entity\PccSite;
-use Drupal\pcx_connect\Service\PccContentApi;
+use Drupal\pcx_connect\Service\PccContentApiInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
@@ -23,9 +23,9 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * PCC Content API service
    *
-   * @var PccContentApi
+   * @var PccContentApiInterface
    */
-  protected PccContentApi $pccContentApi;
+  protected PccContentApiInterface $pccContentApi;
 
   /**
    * Constructs a PccSiteViewQuery object.
@@ -36,10 +36,10 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The database-specific date handler.
-   * @param PccContentApi $pccContentApi
+   * @param PccContentApiInterface $pccContentApi
    *   The PCC Content API Service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccContentApi $pccContentApi) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccContentApiInterface $pccContentApi) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->pccContentApi = $pccContentApi;
   }

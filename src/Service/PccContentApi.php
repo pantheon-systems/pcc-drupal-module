@@ -4,19 +4,20 @@ namespace Drupal\pcx_connect\Service;
 
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use Drupal\pcx_connect\PccApiTrait;
 use PccPhpSdk\api\ContentApi;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
  * PCC Content API Integration service
  */
-class PccContentApi {
+class PccContentApi implements PccContentApiInterface {
 
   /**
-   * PCC API Trait.
+   * Pcc API Client.
+   *
+   * @var PccApiClient
    */
-  use PccApiTrait;
+  protected PccApiClient $pccApiClient;
 
   /**
    * Logger Channel Interface.
@@ -38,22 +39,15 @@ class PccContentApi {
    * @param LoggerChannelFactory $loggerChannelFactory
    *   Logger Channel Factory.
    */
-  public function __construct(LoggerChannelFactory $loggerChannelFactory) {
+  public function __construct(PccApiClient $pccApiClient, LoggerChannelFactory $loggerChannelFactory) {
     $this->logger = $loggerChannelFactory->get('pcx_connect');
+    $this->pccApiClient = $pccApiClient;
   }
 
   /**
-   * Get all articles.
-   *
-   * @param string $siteId
-   *   Site ID.
-   * @param string $siteToken
-   *   Site Token.
-   *
-   * @return mixed
-   *   Returns array of Articles in the form of Associative data.
+   * {@inheritDoc}
    */
-  function getAllArticles(string $siteId, string $siteToken): mixed {
+  public function getAllArticles(string $siteId, string $siteToken): mixed {
     $articles = [];
     try {
       $response = $this->getContentApi($siteId, $siteToken)->getAllArticles();
@@ -78,7 +72,7 @@ class PccContentApi {
    */
   protected function getContentApi(string $siteId, string $siteToken): ContentApi {
     if (empty($this->contentApi)) {
-      $this->contentApi = new ContentApi($this->getPccClient($siteId, $siteToken));
+      $this->contentApi = new ContentApi($this->pccApiClient->getPccClient($siteId, $siteToken));
     }
     return $this->contentApi;
   }

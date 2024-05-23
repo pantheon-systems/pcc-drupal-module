@@ -3,8 +3,8 @@
 namespace Drupal\pcx_connect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use PccPhpSdk\api\ContentApi;
-use PccPhpSdk\api\SiteApi;
+use PccPhpSdk\api\ArticlesApi;
+use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
 use PccPhpSdk\core\PccClientConfig;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -68,7 +68,7 @@ class DebugSiteController extends ControllerBase {
    */
   public function getSite(): JsonResponse {
     $siteId = $this->getSiteID();
-    $contentApi = new SiteApi($this->pccClient);
+    $contentApi = new SitesApi($this->pccClient);
     $content = $contentApi->getSite($siteId);
 
     return new JsonResponse(
@@ -86,8 +86,9 @@ class DebugSiteController extends ControllerBase {
    *   JsonResponse with all articles.
    */
   public function getAllArticles(): JsonResponse {
-    $contentApi = new ContentApi($this->pccClient);
-    $content = $contentApi->getAllArticles();
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getAllArticles();
+    $content = json_encode($response);
 
     return new JsonResponse(
       $content,

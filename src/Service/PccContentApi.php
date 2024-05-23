@@ -4,7 +4,7 @@ namespace Drupal\pcx_connect\Service;
 
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
-use PccPhpSdk\api\ContentApi;
+use PccPhpSdk\api\ArticlesApi;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
@@ -29,9 +29,9 @@ class PccContentApi implements PccContentApiInterface {
   /**
    * PCC Content API.
    *
-   * @var ContentApi
+   * @var \PccPhpSdk\api\ArticlesApi
    */
-  protected ContentApi $contentApi;
+  protected ArticlesApi $contentApi;
 
   /**
    * PccContentApi Constructor.
@@ -67,12 +67,12 @@ class PccContentApi implements PccContentApiInterface {
    * @param string $siteToken
    *   Site Token.
    *
-   * @return ContentApi
+   * @return \PccPhpSdk\api\ArticlesApi
    *   PCC Content API.
    */
-  protected function getContentApi(string $siteId, string $siteToken): ContentApi {
+  protected function getContentApi(string $siteId, string $siteToken): ArticlesApi {
     if (empty($this->contentApi)) {
-      $this->contentApi = new ContentApi($this->pccApiClient->getPccClient($siteId, $siteToken));
+      $this->contentApi = new ArticlesApi($this->pccApiClient->getPccClient($siteId, $siteToken));
     }
     return $this->contentApi;
   }

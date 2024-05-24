@@ -98,6 +98,32 @@ class DebugSiteController extends ControllerBase {
     );
   }
 
+  public function getArticleById(string $id): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getArticleById($id);
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
+  public function getArticleBySlug(string $slug): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getArticleBySlug($slug);
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
   /**
    * Get Site ID from query.
    *

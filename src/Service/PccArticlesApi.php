@@ -10,7 +10,7 @@ use PccPhpSdk\Exception\PccClientException;
 /**
  * PCC Content API Integration service
  */
-class PccContentApi implements PccContentApiInterface {
+class PccArticlesApi implements PccArticlesApiInterface {
 
   /**
    * Pcc API Client.
@@ -31,7 +31,7 @@ class PccContentApi implements PccContentApiInterface {
    *
    * @var \PccPhpSdk\api\ArticlesApi
    */
-  protected ArticlesApi $contentApi;
+  protected ArticlesApi $articlesApi;
 
   /**
    * PccContentApi Constructor.
@@ -50,7 +50,7 @@ class PccContentApi implements PccContentApiInterface {
   public function getAllArticles(string $siteId, string $siteToken): mixed {
     $articles = [];
     try {
-      $response = $this->getContentApi($siteId, $siteToken)->getAllArticles();
+      $response = $this->getArticlesApi($siteId, $siteToken)->getAllArticles();
       $articles = json_decode($response, TRUE);
     } catch (PccClientException $e) {
       $this->logger->error('Failed to get articles: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
@@ -70,10 +70,10 @@ class PccContentApi implements PccContentApiInterface {
    * @return \PccPhpSdk\api\ArticlesApi
    *   PCC Content API.
    */
-  protected function getContentApi(string $siteId, string $siteToken): ArticlesApi {
-    if (empty($this->contentApi)) {
-      $this->contentApi = new ArticlesApi($this->pccApiClient->getPccClient($siteId, $siteToken));
+  protected function getArticlesApi(string $siteId, string $siteToken): ArticlesApi {
+    if (empty($this->articlesApi)) {
+      $this->articlesApi = new ArticlesApi($this->pccApiClient->getPccClient($siteId, $siteToken));
     }
-    return $this->contentApi;
+    return $this->articlesApi;
   }
 }

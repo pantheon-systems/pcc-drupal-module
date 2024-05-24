@@ -2,7 +2,7 @@
 
 namespace Drupal\pcx_connect\Service;
 
-interface PccContentApiInterface {
+interface PccArticlesApiInterface {
 
   /**
    * Get all articles.

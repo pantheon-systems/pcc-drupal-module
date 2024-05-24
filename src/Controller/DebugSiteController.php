@@ -98,6 +98,15 @@ class DebugSiteController extends ControllerBase {
     );
   }
 
+  /**
+   * Get article by id.
+   *
+   * @param string $id
+   *   Article ID.
+   *
+   * @return JsonResponse
+   *   Json Response containing the article.
+   */
   public function getArticleById(string $id): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
     $response = $contentApi->getArticleById($id);
@@ -111,6 +120,15 @@ class DebugSiteController extends ControllerBase {
     );
   }
 
+  /**
+   * Get article by slug.
+   *
+   * @param string $slug
+   *   Article Slug.
+   *
+   * @return JsonResponse
+   *   Json Response containing the article.
+   */
   public function getArticleBySlug(string $slug): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
     $response = $contentApi->getArticleBySlug($slug);

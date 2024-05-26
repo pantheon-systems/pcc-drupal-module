@@ -1,9 +1,10 @@
 <?php
 
-namespace Drupal\pcx_connect\Service;
+namespace Drupal\pcx_connect\Pcc\Service;
 
 use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
+use Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface;
 use PccPhpSdk\api\ArticlesApi;
 use PccPhpSdk\Exception\PccClientException;
 
@@ -20,6 +21,13 @@ class PccArticlesApi implements PccArticlesApiInterface {
   protected PccApiClient $pccApiClient;
 
   /**
+   * PCC Articles Mapper.
+   *
+   * @var PccArticlesMapperInterface  $pccArticlesMapper
+   */
+  protected PccArticlesMapperInterface $pccArticlesMapper;
+
+  /**
    * Logger Channel Interface.
    *
    * @var LoggerChannelInterface
@@ -29,7 +37,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * PCC Content API.
    *
-   * @var \PccPhpSdk\api\ArticlesApi
+   * @var \PccPhpSdk\api\ArticlesApi $articlesApi
    */
   protected ArticlesApi $articlesApi;
 
@@ -39,19 +47,20 @@ class PccArticlesApi implements PccArticlesApiInterface {
    * @param LoggerChannelFactory $loggerChannelFactory
    *   Logger Channel Factory.
    */
-  public function __construct(PccApiClient $pccApiClient, LoggerChannelFactory $loggerChannelFactory) {
+  public function __construct(PccApiClient $pccApiClient, PccArticlesMapperInterface $pccArticlesMapper, LoggerChannelFactory $loggerChannelFactory) {
     $this->logger = $loggerChannelFactory->get('pcx_connect');
     $this->pccApiClient = $pccApiClient;
+    $this->pccArticlesMapper = $pccArticlesMapper;
   }
 
   /**
    * {@inheritDoc}
    */
-  public function getAllArticles(string $siteId, string $siteToken): mixed {
+  public function getAllArticles(string $siteId, string $siteToken): array {
     $articles = [];
     try {
       $response = $this->getArticlesApi($siteId, $siteToken)->getAllArticles();
-      $articles = json_decode($response, TRUE);
+      $articles = $this->pccArticlesMapper->toArticlesList($response);
     } catch (PccClientException $e) {
       $this->logger->error('Failed to get articles: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }
@@ -76,4 +85,5 @@ class PccArticlesApi implements PccArticlesApiInterface {
     }
     return $this->articlesApi;
   }
+
 }

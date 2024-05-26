@@ -48,6 +48,24 @@ function pcx_connect_views_data() {
         'query_id' => 'pcc_site_view_query',
       ];
 
+      $table['id'] = [
+        'title' => $translation->translate('Id'),
+        'help' => $translation->translate('Article Id'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => TRUE,
+        ],
+        'sort' => [
+          'id' => 'standard',
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
+        ],
+      ];
+
       $table['title'] = [
         'title' => $translation->translate('Title'),
         'help' => $translation->translate('Article title'),
@@ -96,8 +114,8 @@ function pcx_connect_views_data() {
         ],
       ];
 
-      $table['publishedAt'] = [
-        'title' => $translation->translate('Published At'),
+      $table['publishedDate'] = [
+        'title' => $translation->translate('Published Date'),
         'help' => $translation->translate('Article publish time'),
         'field' => [
           'id' => 'date',

@@ -4,6 +4,9 @@ namespace Drupal\pcx_connect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
 use PccPhpSdk\api\ArticlesApi;
+use PccPhpSdk\api\Query\ArticleQueryArgs;
+use PccPhpSdk\api\Query\ArticleSearchArgs;
+use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
 use PccPhpSdk\core\PccClientConfig;
@@ -87,7 +90,13 @@ class DebugSiteController extends ControllerBase {
    */
   public function getAllArticles(): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-    $response = $contentApi->getAllArticles();
+//    $response = $contentApi->getAllArticles();
+    $response = $contentApi->searchArticles(new ArticleQueryArgs(), new ArticleSearchArgs(
+      'Google',
+      '',
+      'Product Updates',
+      PublishStatus::PUBLISHED
+    ));
     $content = json_encode($response);
 
     return new JsonResponse(

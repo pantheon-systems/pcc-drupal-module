@@ -73,3 +73,9 @@ pcx_connect.get_article_by_slug:
       slug:
         type: string
 
+pcx_connect.search_articles:
+  path: '/api/pantheoncloud/debug/search-articles'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\DebugSiteController::searchArticles'
+  requirements:
+    _permission: 'administer pcc configurations'

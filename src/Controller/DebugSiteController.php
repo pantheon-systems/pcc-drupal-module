@@ -90,13 +90,7 @@ class DebugSiteController extends ControllerBase {
    */
   public function getAllArticles(): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-//    $response = $contentApi->getAllArticles();
-    $response = $contentApi->searchArticles(new ArticleQueryArgs(), new ArticleSearchArgs(
-      'Google',
-      '',
-      'Product Updates',
-      PublishStatus::PUBLISHED
-    ));
+    $response = $contentApi->getAllArticles();
     $content = json_encode($response);
 
     return new JsonResponse(
@@ -152,6 +146,30 @@ class DebugSiteController extends ControllerBase {
   }
 
   /**
+   * Search Articles.
+   *
+   * @return JsonResponse
+   *   Json Response containing the articles.
+   */
+  public function searchArticles(): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->searchArticles(new ArticleQueryArgs(), new ArticleSearchArgs(
+      $this->getQueryArg('bodyContains') ?? '',
+      $this->getQueryArg('tagContains') ?? '',
+      $this->getQueryArg('titleContains') ?? '',
+      $this->getQueryArg('published') ? PublishStatus::PUBLISHED : PublishStatus::UNPUBLISHED
+    ));
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
+  /**
    * Get Site ID from query.
    *
    * @return string|null
@@ -170,4 +188,9 @@ class DebugSiteController extends ControllerBase {
   private function getSiteToken(): ?string {
     return $this->requestStack->getCurrentRequest()->query->get('site-token');
   }
+
+  private function getQueryArg(string $name): ?string {
+    return $this->requestStack->getCurrentRequest()->query->get($name);
+  }
+
 }

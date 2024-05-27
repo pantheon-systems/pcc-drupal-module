@@ -99,6 +99,21 @@ function pcx_connect_views_data() {
         ],
       ];
 
+      $table['id'] = [
+        'title' => $translation->translate('ID'),
+        'help' => $translation->translate('Article ID'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => FALSE,
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
+        ],
+      ];
+
       $table['snippet'] = [
         'title' => $translation->translate('Snippet'),
         'help' => $translation->translate('Article Snippet'),
@@ -114,8 +129,23 @@ function pcx_connect_views_data() {
         ],
       ];
 
+      $table['slug'] = [
+        'title' => $translation->translate('Slug'),
+        'help' => $translation->translate('Article Slug'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => FALSE,
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
+        ],
+      ];
+
       $table['publishedDate'] = [
-        'title' => $translation->translate('Published Date'),
+        'title' => $translation->translate('Published At'),
         'help' => $translation->translate('Article publish time'),
         'field' => [
           'id' => 'date',

@@ -1,8 +1,8 @@
 <?php
 
-namespace Drupal\pcx_connect\Service;
+namespace Drupal\pcx_connect\Pcc\Service;
 
-interface PccContentApiInterface {
+interface PccArticlesApiInterface {
 
   /**
    * Get all articles.
@@ -15,6 +15,6 @@ interface PccContentApiInterface {
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
    */
-  public function getAllArticles(string $siteId, string $siteToken): mixed;
+  public function getAllArticles(string $siteId, string $siteToken): array;
 
 }

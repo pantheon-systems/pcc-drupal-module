@@ -3,8 +3,11 @@
 namespace Drupal\pcx_connect\Controller;
 
 use Drupal\Core\Controller\ControllerBase;
-use PccPhpSdk\api\ContentApi;
-use PccPhpSdk\api\SiteApi;
+use PccPhpSdk\api\ArticlesApi;
+use PccPhpSdk\api\Query\ArticleQueryArgs;
+use PccPhpSdk\api\Query\ArticleSearchArgs;
+use PccPhpSdk\api\Query\Enums\PublishStatus;
+use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
 use PccPhpSdk\core\PccClientConfig;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -68,7 +71,7 @@ class DebugSiteController extends ControllerBase {
    */
   public function getSite(): JsonResponse {
     $siteId = $this->getSiteID();
-    $contentApi = new SiteApi($this->pccClient);
+    $contentApi = new SitesApi($this->pccClient);
     $content = $contentApi->getSite($siteId);
 
     return new JsonResponse(
@@ -86,8 +89,77 @@ class DebugSiteController extends ControllerBase {
    *   JsonResponse with all articles.
    */
   public function getAllArticles(): JsonResponse {
-    $contentApi = new ContentApi($this->pccClient);
-    $content = $contentApi->getAllArticles();
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getAllArticles();
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
+  /**
+   * Get article by id.
+   *
+   * @param string $id
+   *   Article ID.
+   *
+   * @return JsonResponse
+   *   Json Response containing the article.
+   */
+  public function getArticleById(string $id): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getArticleById($id);
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
+  /**
+   * Get article by slug.
+   *
+   * @param string $slug
+   *   Article Slug.
+   *
+   * @return JsonResponse
+   *   Json Response containing the article.
+   */
+  public function getArticleBySlug(string $slug): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->getArticleBySlug($slug);
+    $content = json_encode($response);
+
+    return new JsonResponse(
+      $content,
+      200,
+      [],
+      true
+    );
+  }
+
+  /**
+   * Search Articles.
+   *
+   * @return JsonResponse
+   *   Json Response containing the articles.
+   */
+  public function searchArticles(): JsonResponse {
+    $contentApi = new ArticlesApi($this->pccClient);
+    $response = $contentApi->searchArticles(new ArticleQueryArgs(), new ArticleSearchArgs(
+      $this->getQueryArg('bodyContains') ?? '',
+      $this->getQueryArg('tagContains') ?? '',
+      $this->getQueryArg('titleContains') ?? '',
+      $this->getQueryArg('published') ? PublishStatus::PUBLISHED : PublishStatus::UNPUBLISHED
+    ));
+    $content = json_encode($response);
 
     return new JsonResponse(
       $content,
@@ -116,4 +188,9 @@ class DebugSiteController extends ControllerBase {
   private function getSiteToken(): ?string {
     return $this->requestStack->getCurrentRequest()->query->get('site-token');
   }
+
+  private function getQueryArg(string $name): ?string {
+    return $this->requestStack->getCurrentRequest()->query->get($name);
+  }
+
 }

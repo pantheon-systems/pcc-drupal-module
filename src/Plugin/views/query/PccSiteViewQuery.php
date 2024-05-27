@@ -3,7 +3,7 @@
 namespace Drupal\pcx_connect\Plugin\views\query;
 
 use Drupal\pcx_connect\Entity\PccSite;
-use Drupal\pcx_connect\Service\PccContentApiInterface;
+use Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
@@ -21,11 +21,20 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PccSiteViewQuery extends QueryPluginBase {
 
   /**
+   * An array of sections of the WHERE query.
+   *
+   * Each section is in itself an array of pieces and a flag as to whether or
+   * not it should be AND or OR.
+   */
+
+  public $where = [];
+
+  /**
    * PCC Content API service
    *
-   * @var PccContentApiInterface
+   * @var PccArticlesApiInterface
    */
-  protected PccContentApiInterface $pccContentApi;
+  protected PccArticlesApiInterface $pccContentApi;
 
   /**
    * Constructs a PccSiteViewQuery object.
@@ -36,10 +45,10 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The database-specific date handler.
-   * @param PccContentApiInterface $pccContentApi
+   * @param PccArticlesApiInterface $pccContentApi
    *   The PCC Content API Service.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccContentApiInterface $pccContentApi) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->pccContentApi = $pccContentApi;
   }
@@ -52,7 +61,7 @@ class PccSiteViewQuery extends QueryPluginBase {
       $configuration,
       $plugin_id,
       $plugin_definition,
-      $container->get('pcx_connect.pcc_content_api'),
+      $container->get('pcx_connect.pcc_articles_api'),
     );
   }
 
@@ -88,31 +97,67 @@ class PccSiteViewQuery extends QueryPluginBase {
   }
 
   /**
+   * Adds a simple WHERE clause to the query.
+   *
+   * The caller is responsible for ensuring that all fields are fully qualified
+   * (TABLE.FIELD) and that the table already exists in the query.
+   *
+   * The $field, $value and $operator arguments can also be passed in with a
+   * single DatabaseCondition object, like this:
+   * @code
+   * $this->query->addWhere(
+   *   $this->options['group'],
+   *   ($this->query->getConnection()->condition('OR'))
+   *     ->condition($field, $value, 'NOT IN')
+   *     ->condition($field, $value, 'IS NULL')
+   * );
+   * @endcode
+   *
+   * @param $group
+   *   The WHERE group to add these to; groups are used to create AND/OR
+   *   sections. Groups cannot be nested. Use 0 as the default group.
+   *   If the group does not yet exist it will be created as an AND group.
+   * @param $field
+   *   The name of the field to check.
+   * @param $value
+   *   The value to test the field against. In most cases, this is a scalar. For more
+   *   complex options, it is an array. The meaning of each element in the array is
+   *   dependent on the $operator.
+   * @param $operator
+   *   The comparison operator, such as =, <, or >=. It also accepts more
+   *   complex options such as IN, LIKE, LIKE BINARY, or BETWEEN. Defaults to =.
+   *   If $field is a string you have to use 'formula' here.
+   */
+  public function addWhere($group, $field, $value = NULL, $operator = NULL) {
+    // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
+    // the default group.
+    if (empty($group)) {
+      $group = 0;
+    }
+
+    // Check for a group.
+    if (!isset($this->where[$group])) {
+      $this->setWhereGroup('AND', $group);
+    }
+
+    $this->where[$group]['conditions'][] = [
+      'field' => $field,
+      'value' => $value,
+      'operator' => $operator,
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    */
   public function execute(ViewExecutable $view): void {
     $base_table = $view->storage->get('base_table');
     $pcc_site = PccSite::load($base_table);
     if ($pcc_site) {
-      try {
-        $api_response = $this->getArticlesFromPccContentApi($pcc_site->get('site_token'), $pcc_site->get('site_key'));
-        if (!empty($api_response['data'])) {
-          $index = 0;
-          foreach ($api_response['data']['articles'] as $data) {
-            $row['id'] = $pcc_site->id();
-            $row['title'] = $data['title'];
-            $row['content'] = $data['content'];
-            $row['snippet'] = $data['snippet'];
-            $row['publishedAt'] = ((int) $data['publishedDate'] / 1000);
-            $row['updatedAt'] = ((int) $data['updatedAt'] / 1000);
-            $row['index'] = $index++;
-            $view->result[] = new ResultRow($row);
-          }
-        }
-      }
-      catch (\Exception $e) {
-        \Drupal::logger('pcx_connect')->error('Failed to load views output: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
-        $this->execute($view);
+      $articles = $this->getArticlesFromPccContentApi($pcc_site->get('site_token'), $pcc_site->get('site_key'));
+      $index = 0;
+      foreach ($articles as $article) {
+        $view->result[] = $this->toRow($article, $index++);
       }
     }
   }
@@ -130,6 +175,18 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   protected function getArticlesFromPccContentApi(string $token, string $site_key): array {
     return $this->pccContentApi->getAllArticles($site_key, $token);
+  }
+
+  protected function toRow(array $article, int $index): ResultRow {
+    $row = [];
+    $row['id'] = $article['id'];
+    $row['title'] = $article['title'];
+    $row['content'] = $article['content'];
+    $row['snippet'] = $article['snippet'];
+    $row['publishedDate'] = intdiv($article['publishedDate'], 1000);
+    $row['updatedAt'] = intdiv($article['updatedAt'], 1000);
+    $row['index'] = $index;
+    return new ResultRow($row);
   }
 
 }

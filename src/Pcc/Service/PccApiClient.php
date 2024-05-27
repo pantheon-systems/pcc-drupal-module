@@ -1,6 +1,6 @@
 <?php
 
-namespace Drupal\pcx_connect\Service;
+namespace Drupal\pcx_connect\Pcc\Service;
 
 use PccPhpSdk\core\PccClient;
 use PccPhpSdk\core\PccClientConfig;

@@ -50,3 +50,32 @@ pcx_connect.get_all_articles:
     _controller: '\Drupal\pcx_connect\Controller\DebugSiteController::getAllArticles'
   requirements:
     _permission: 'administer pcc configurations'
+
+pcx_connect.get_article_by_id:
+  path: '/api/pantheoncloud/debug/get-article-by-id/{id}'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\DebugSiteController::getArticleById'
+  requirements:
+    _permission: 'administer pcc configurations'
+  options:
+    parameters:
+      id:
+        type: string
+
+pcx_connect.get_article_by_slug:
+  path: '/api/pantheoncloud/debug/get-article-by-slug/{slug}'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\DebugSiteController::getArticleBySlug'
+  requirements:
+    _permission: 'administer pcc configurations'
+  options:
+    parameters:
+      slug:
+        type: string
+
+pcx_connect.search_articles:
+  path: '/api/pantheoncloud/debug/search-articles'
+  defaults:
+    _controller: '\Drupal\pcx_connect\Controller\DebugSiteController::searchArticles'
+  requirements:
+    _permission: 'administer pcc configurations'

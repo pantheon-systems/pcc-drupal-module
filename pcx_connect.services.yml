@@ -1,7 +1,9 @@
 services:
   pcx_connect.pcc_api_client:
-    class: Drupal\pcx_connect\Service\PccApiClient
+    class: Drupal\pcx_connect\Pcc\Service\PccApiClient
     arguments: ['@logger.factory']
-  pcx_connect.pcc_content_api:
-    class: Drupal\pcx_connect\Service\PccContentApi
-    arguments: ['@pcx_connect.pcc_api_client', '@logger.factory']
+  pcx_connect.articles_mapper:
+    class: Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapper
+  pcx_connect.pcc_articles_api:
+    class: Drupal\pcx_connect\Pcc\Service\PccArticlesApi
+    arguments: ['@pcx_connect.pcc_api_client', '@pcx_connect.articles_mapper', '@logger.factory']

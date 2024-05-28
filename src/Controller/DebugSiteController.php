@@ -6,6 +6,9 @@ use Drupal\Core\Controller\ControllerBase;
 use PccPhpSdk\api\ArticlesApi;
 use PccPhpSdk\api\Query\ArticleQueryArgs;
 use PccPhpSdk\api\Query\ArticleSearchArgs;
+use PccPhpSdk\api\Query\Enums\ArticleSortField;
+use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
+use PccPhpSdk\api\Query\Enums\ContentType;
 use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
@@ -153,7 +156,15 @@ class DebugSiteController extends ControllerBase {
    */
   public function searchArticles(): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-    $response = $contentApi->searchArticles(new ArticleQueryArgs(), new ArticleSearchArgs(
+    $response = $contentApi->searchArticles(
+      new ArticleQueryArgs(
+        ArticleSortField::from($this->getQueryArg('sortField') ?? 'updatedAt'),
+        ArticleSortOrder::from($this->getQueryArg('sortOrder') ?? 'DESC'),
+        $this->getQueryArg('pageSize') ?? 10,
+        $this->getQueryArg('pageIndex') ?? 1,
+        ContentType::from($this->getQueryArg('contentType') ?? 'TREE_PANTHEON_V2')
+      ),
+      new ArticleSearchArgs(
       $this->getQueryArg('bodyContains') ?? '',
       $this->getQueryArg('tagContains') ?? '',
       $this->getQueryArg('titleContains') ?? '',

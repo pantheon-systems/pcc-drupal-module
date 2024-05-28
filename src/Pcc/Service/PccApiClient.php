@@ -27,18 +27,17 @@ class PccApiClient {
    * @param bool $refresh
    *   Refresh Flag to get new PccClient.
    *
-   * @return PccClient
+   * @return \PccPhpSdk\core\PccClient
    *   Returns PccClient.
    */
-  public function getPccClient(string $siteId, string $siteToken, bool $refresh = false): PccClient {
+  public function getPccClient(string $siteId, string $siteToken, bool $refresh = FALSE): PccClient {
     if (!empty($this->pccClientList) && !empty($this->pccClientList[$siteId]) && !$refresh) {
       return $this->pccClientList[$siteId];
     }
-
-    $this->pccClientList[$siteId] = new PccClient(
-      new PccClientConfig($siteId, $siteToken)
-    );
+    $client_config = new PccClientConfig($siteId, $siteToken);
+    $this->pccClientList[$siteId] = new PccClient($client_config);
 
     return $this->pccClientList[$siteId];
   }
+
 }

@@ -4,6 +4,7 @@ namespace Drupal\pcx_connect\Plugin\views\query;
 
 use Drupal\pcx_connect\Entity\PccSite;
 use Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface;
+use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
@@ -25,16 +26,91 @@ class PccSiteViewQuery extends QueryPluginBase {
    *
    * Each section is in itself an array of pieces and a flag as to whether or
    * not it should be AND or OR.
+   *
+   * @var array
    */
 
   public $where = [];
 
   /**
-   * PCC Content API service
+   * Number of results to display.
    *
-   * @var PccArticlesApiInterface
+   * @var int
+   */
+  protected $limit;
+
+  /**
+   * The index this view accesses.
+   *
+   * @var \Drupal\pcx_connect\Entity\PccSite
+   */
+  protected $index;
+
+  /**
+   * The graphql query that will be executed.
+   *
+   * @var string
+   */
+  protected string $query;
+
+  /**
+   * Array of all encountered errors.
+   *
+   * Each of these is fatal, meaning that a non-empty $errors property will
+   * result in an empty result being returned.
+   *
+   * @var array
+   */
+  protected $errors = [];
+
+  /**
+   * Whether to abort the search instead of executing it.
+   *
+   * @var bool
+   */
+  protected $abort = FALSE;
+
+  /**
+   * The IDs of fields whose values should be retrieved by the backend.
+   *
+   * @var string[]
+   */
+  protected $retrievedFieldValues = [];
+
+  /**
+   * An array of fields.
+   *
+   * @var array
+   */
+  public $fields = [];
+
+  /**
+   * PCC Content API service.
+   *
+   * @var \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface
    */
   protected PccArticlesApiInterface $pccContentApi;
+
+  /**
+   * Contextual filters.
+   *
+   * @var array
+   */
+  protected $contextualFilters = [];
+
+  /**
+   * The site token.
+   *
+   * @var string
+   */
+  protected $siteToken = '';
+
+  /**
+   * The site key.
+   *
+   * @var string
+   */
+  protected $siteKey = '';
 
   /**
    * Constructs a PccSiteViewQuery object.
@@ -45,7 +121,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The plugin_id for the plugin instance.
    * @param mixed $plugin_definition
    *   The database-specific date handler.
-   * @param PccArticlesApiInterface $pccContentApi
+   * @param \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface $pccContentApi
    *   The PCC Content API Service.
    */
   public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi) {
@@ -63,6 +139,50 @@ class PccSiteViewQuery extends QueryPluginBase {
       $plugin_definition,
       $container->get('pcx_connect.pcc_articles_api'),
     );
+  }
+
+  /**
+   * Let modules modify the query just prior to finalizing it.
+   */
+  public function alter(ViewExecutable $view) {
+    \Drupal::moduleHandler()->invokeAll('views_query_alter', [$view, $this]);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
+    try {
+      parent::init($view, $display, $options);
+      $base_table = $view->storage->get('base_table');
+      $this->index = PccSite::load($base_table);
+      if (!$this->index) {
+        $this->abort(new FormattableMarkup('View %view is not based on PCC Site API but tries to use its query plugin.', ['%view' => $view->storage->label()]));
+      }
+      $this->query = $this->query();
+    }
+    catch (\Exception $e) {
+      $this->abort($e->getMessage());
+    }
+  }
+
+  /**
+   * Aborts this PCC Site query.
+   *
+   * Used by handlers to flag a fatal error which shouldn't be displayed but
+   * still lead to the view returning empty and the search not being executed.
+   *
+   * @param \Drupal\Component\Render\MarkupInterface|string|null $msg
+   *   Optionally, a translated, unescaped error message to display.
+   */
+  public function abort($msg = NULL) {
+    if ($msg) {
+      $this->errors[] = $msg;
+    }
+    $this->abort = TRUE;
+    if (isset($this->query)) {
+      $this->abort($msg);
+    }
   }
 
   /**
@@ -93,7 +213,23 @@ class PccSiteViewQuery extends QueryPluginBase {
    * @see \Drupal\views\Plugin\views\query\Sql::addField()
    */
   public function addField($table, $field, $alias = '', $params = []): string {
+    $this->fields[$field] = $field;
     return $field;
+  }
+
+  /**
+   * Builds the necessary info to execute the query.
+   */
+  public function build(ViewExecutable $view) {
+    // Store the view in the object to be able to use it later.
+    $this->view = $view;
+
+    $view->initPager();
+
+    // Let the pager modify the query to add limits.
+    $view->pager->query();
+    $view->build_info['query'] = $this->query();
+    $view->build_info['count_query'] = $this->query(TRUE);
   }
 
   /**
@@ -113,26 +249,29 @@ class PccSiteViewQuery extends QueryPluginBase {
    * );
    * @endcode
    *
-   * @param $group
+   * @param int $group
    *   The WHERE group to add these to; groups are used to create AND/OR
    *   sections. Groups cannot be nested. Use 0 as the default group.
    *   If the group does not yet exist it will be created as an AND group.
-   * @param $field
+   * @param string $field
    *   The name of the field to check.
-   * @param $value
-   *   The value to test the field against. In most cases, this is a scalar. For more
-   *   complex options, it is an array. The meaning of each element in the array is
+   * @param mixed $value
+   *   The value to test the field against. In most cases, this is a scalar.
+   *   For more complex options, it is an array.
+   *   The meaning of each element in the array is
    *   dependent on the $operator.
-   * @param $operator
+   * @param mixed $operator
    *   The comparison operator, such as =, <, or >=. It also accepts more
    *   complex options such as IN, LIKE, LIKE BINARY, or BETWEEN. Defaults to =.
    *   If $field is a string you have to use 'formula' here.
    */
-  public function addWhere($group, $field, $value = NULL, $operator = NULL) {
+  public function addWhere($group, $field, $value = NULL, $operator = NULL): void {
     // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
     // the default group.
     if (empty($group)) {
       $group = 0;
+      $filter_field = str_replace('.', '', $field);
+      $this->contextualFilters[$filter_field] = $value;
     }
 
     // Check for a group.
@@ -149,42 +288,123 @@ class PccSiteViewQuery extends QueryPluginBase {
 
   /**
    * {@inheritdoc}
+   *
+   * Generates a GRAPHQL query.
+   */
+  public function query($get_count = FALSE) {
+    $query_condition = "( \n  contentType: TREE_PANTHEON_V2";
+    if ($this->where) {
+      foreach ($this->where as $group) {
+        foreach ($group['conditions'] as $condition) {
+          $field = str_replace('.', '', $condition['field']);
+          $value = $condition['value'];
+          $query_condition .= "\n  $field: $value\n";
+        }
+      }
+    }
+    $query_condition .= ")";
+    $query_fields = '';
+    if ($this->fields) {
+      $index = 0;
+      foreach ($this->fields as $field) {
+        if ($index > 0) {
+          $query_fields .= "\n  $field";
+        }
+        else {
+          $query_fields .= "$field";
+        }
+        $index++;
+      }
+    }
+    $entity = 'articles';
+    if (!empty($this->contextualFilters)) {
+      $entity = 'article';
+    }
+    $query = <<<GRAPHQL
+    $entity $query_condition {
+      $query_fields
+    }
+    GRAPHQL;
+    return $query;
+  }
+
+  /**
+   * {@inheritdoc}
    */
   public function execute(ViewExecutable $view): void {
     $base_table = $view->storage->get('base_table');
     $pcc_site = PccSite::load($base_table);
     if ($pcc_site) {
-      $articles = $this->getArticlesFromPccContentApi($pcc_site->get('site_token'), $pcc_site->get('site_key'));
-      $index = 0;
-      foreach ($articles as $article) {
-        $view->result[] = $this->toRow($article, $index++);
+      try {
+        $this->siteKey = $pcc_site->get('site_key');
+        $this->siteToken = $pcc_site->get('site_token');
+        if (isset($this->contextualFilters['slug'])) {
+          $content_slug = $this->contextualFilters['slug'];
+          $this->getArticleBySlugOrIdFromPccContentApi($view, $content_slug, 'slug');
+        }
+        elseif (isset($this->contextualFilters['id'])) {
+          $content_id = $this->contextualFilters['id'];
+          $this->getArticleBySlugOrIdFromPccContentApi($view, $content_id, 'id');
+        }
+        else {
+          $this->getArticlesFromPccContentApi($view);
+        }
+      }
+      catch (\Exception $e) {
+        \Drupal::logger('pcx_connect')->error('Failed to load views output: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
+        $this->execute($view);
       }
     }
   }
 
   /**
    * Get Articles from Pcc Content API Service.
-   *
-   * @param string $token
-   *   The site token.
-   * @param string $site_key
-   *   The site key.
-   *
-   * @return array
-   *   The API response.
    */
-  protected function getArticlesFromPccContentApi(string $token, string $site_key): array {
-    return $this->pccContentApi->getAllArticles($site_key, $token);
+  protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
+    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $this->fields);
+    $index = 0;
+    foreach ($articles as $article) {
+      $view->result[] = $this->toRow($article, $index++);
+    }
   }
 
+  /**
+   * Get Article from Pcc Content API Service.
+   */
+  protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
+    $index = 0;
+    if ($type == 'slug') {
+      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'slug', $this->fields);
+    }
+    else {
+      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'id', $this->fields);
+    }
+    $article = (array) $article_data;
+    $view->result[] = $this->toRow($article, $index++);
+  }
+
+  /**
+   * Get view row data.
+   *
+   * @param array $article
+   *   The array articles.
+   * @param int $index
+   *   The row index.
+   *
+   * @return \Drupal\views\ResultRow
+   *   The views row.
+   */
   protected function toRow(array $article, int $index): ResultRow {
     $row = [];
-    $row['id'] = $article['id'];
-    $row['title'] = $article['title'];
-    $row['content'] = $article['content'];
-    $row['snippet'] = $article['snippet'];
-    $row['publishedDate'] = intdiv($article['publishedDate'], 1000);
-    $row['updatedAt'] = intdiv($article['updatedAt'], 1000);
+    foreach ($article as $field => $value) {
+      $row[$field] = $value;
+      if ($field === 'publishedDate') {
+        $row[$field] = intdiv($value, 1000);
+      }
+      if ($field === 'updatedAt') {
+        $row[$field] = intdiv($value, 1000);
+      }
+    }
     $row['index'] = $index;
     return new ResultRow($row);
   }

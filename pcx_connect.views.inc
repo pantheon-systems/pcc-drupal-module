@@ -49,8 +49,8 @@ function pcx_connect_views_data() {
       ];
 
       $table['id'] = [
-        'title' => $translation->translate('Id'),
-        'help' => $translation->translate('Article Id'),
+        'title' => $translation->translate('ID'),
+        'help' => $translation->translate('Article ID'),
         'field' => [
           'id' => 'standard',
           'click sortable' => TRUE,
@@ -147,6 +147,21 @@ function pcx_connect_views_data() {
         ],
         'argument' => [
           'id' => 'date',
+        ],
+      ];
+
+      $table['slug'] = [
+        'title' => $translation->translate('Slug'),
+        'help' => $translation->translate('Article Slug'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => FALSE,
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
         ],
       ];
     }

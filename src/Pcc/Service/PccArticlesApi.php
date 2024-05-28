@@ -9,10 +9,9 @@ use PccPhpSdk\api\ArticlesApi;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
- * PCC Content API Integration service
+ * PCC Content API Integration service.
  */
 class PccArticlesApi implements PccArticlesApiInterface {
-
   /**
    * Pcc API Client.
    *
@@ -23,28 +22,32 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * PCC Articles Mapper.
    *
-   * @var PccArticlesMapperInterface  $pccArticlesMapper
+   * @var \Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface
    */
   protected PccArticlesMapperInterface $pccArticlesMapper;
 
   /**
    * Logger Channel Interface.
    *
-   * @var LoggerChannelInterface
+   * @var \Drupal\Core\Logger\LoggerChannelInterface
    */
   protected LoggerChannelInterface $logger;
 
   /**
    * PCC Content API.
    *
-   * @var \PccPhpSdk\api\ArticlesApi $articlesApi
+   * @var \PccPhpSdk\api\ArticlesApi
    */
   protected ArticlesApi $articlesApi;
 
   /**
    * PccContentApi Constructor.
    *
-   * @param LoggerChannelFactory $loggerChannelFactory
+   * @param PccApiClient $pccApiClient
+   *   The pcc api client.
+   * @param \\Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface $pccArticlesMapper
+   *   The PCC article mapper.
+   * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerChannelFactory
    *   Logger Channel Factory.
    */
   public function __construct(PccApiClient $pccApiClient, PccArticlesMapperInterface $pccArticlesMapper, LoggerChannelFactory $loggerChannelFactory) {
@@ -56,16 +59,34 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getAllArticles(string $siteId, string $siteToken): array {
+  public function getAllArticles(string $siteId, string $siteToken, array $fields = []): array {
     $articles = [];
     try {
-      $response = $this->getArticlesApi($siteId, $siteToken)->getAllArticles();
+      $artciles_api = $this->getArticlesApi($siteId, $siteToken);
+      $response = $artciles_api->getAllArticles($fields);
       $articles = $this->pccArticlesMapper->toArticlesList($response);
-    } catch (PccClientException $e) {
+    }
+    catch (PccClientException $e) {
       $this->logger->error('Failed to get articles: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }
 
     return $articles;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type, array $fields = []): mixed {
+    $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
+    $article_api = new ArticlesApi($api_client);
+    $article = [];
+    if ($type == 'slug') {
+      $article = $article_api->getArticleBySlug($slug_or_id, $fields);
+    }
+    else {
+      $article = $article_api->getArticleById($slug_or_id, $fields);
+    }
+    return $article;
   }
 
   /**
@@ -81,7 +102,9 @@ class PccArticlesApi implements PccArticlesApiInterface {
    */
   protected function getArticlesApi(string $siteId, string $siteToken): ArticlesApi {
     if (empty($this->articlesApi)) {
-      $this->articlesApi = new ArticlesApi($this->pccApiClient->getPccClient($siteId, $siteToken));
+      $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
+      $this->articlesApi = new ArticlesApi($api_client);
+
     }
     return $this->articlesApi;
   }

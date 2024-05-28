@@ -340,7 +340,7 @@ class PccSiteViewQuery extends QueryPluginBase {
         $this->siteToken = $pcc_site->get('site_token');
         if (isset($this->contextualFilters['slug'])) {
           $content_slug = $this->contextualFilters['slug'];
-          $this->getArticleBySlugOrIdFromPccContentApi($view, $content_slug);
+          $this->getArticleBySlugOrIdFromPccContentApi($view, $content_slug, 'slug');
         }
         elseif (isset($this->contextualFilters['id'])) {
           $content_id = $this->contextualFilters['id'];
@@ -361,7 +361,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Articles from Pcc Content API Service.
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
-    $articles = $this->pccContentApi->getAllArticles($this->fields, $this->siteKey, $this->siteToken);
+    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $this->fields);
     $index = 0;
     foreach ($articles as $article) {
       $view->result[] = $this->toRow($article, $index++);
@@ -371,13 +371,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * Get Article from Pcc Content API Service.
    */
-  protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type = 'slug'): void {
+  protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
     $index = 0;
     if ($type == 'slug') {
-      $article_data = $this->pccContentApi->getArticle($this->fields, $slug_or_id, $this->siteKey, $this->siteToken);
+      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'slug', $this->fields);
     }
     else {
-      $article_data = $this->pccContentApi->getArticle($this->fields, $slug_or_id, $this->siteKey, $this->siteToken, 'id');
+      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'id', $this->fields);
     }
     $article = (array) $article_data;
     $view->result[] = $this->toRow($article, $index++);

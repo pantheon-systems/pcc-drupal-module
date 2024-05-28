@@ -59,7 +59,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getAllArticles(array $fields, string $siteId, string $siteToken): array {
+  public function getAllArticles(string $siteId, string $siteToken, array $fields = []): array {
     $articles = [];
     try {
       $artciles_api = $this->getArticlesApi($siteId, $siteToken);
@@ -76,15 +76,15 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getArticle(array $fields, string $slug_or_id, string $siteId, string $siteToken, string $type = 'slug'): mixed {
+  public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type, array $fields = []): mixed {
     $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
     $article_api = new ArticlesApi($api_client);
     $article = [];
     if ($type == 'slug') {
-      $article = $article_api->getArticleBySlug($fields, $slug_or_id);
+      $article = $article_api->getArticleBySlug($slug_or_id, $fields);
     }
     else {
-      $article = $article_api->getArticleById($fields, $slug_or_id);
+      $article = $article_api->getArticleById($slug_or_id, $fields);
     }
     return $article;
   }

@@ -361,7 +361,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Articles from Pcc Content API Service.
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
-    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken);
+    $articles = $this->pccContentApi->getAllArticles($this->fields, $this->siteKey, $this->siteToken);
     $index = 0;
     foreach ($articles as $article) {
       $view->result[] = $this->toRow($article, $index++);
@@ -374,10 +374,10 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type = 'slug'): void {
     $index = 0;
     if ($type == 'slug') {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken);
+      $article_data = $this->pccContentApi->getArticle($this->fields, $slug_or_id, $this->siteKey, $this->siteToken);
     }
     else {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'id');
+      $article_data = $this->pccContentApi->getArticle($this->fields, $slug_or_id, $this->siteKey, $this->siteToken, 'id');
     }
     $article = (array) $article_data;
     $view->result[] = $this->toRow($article, $index++);
@@ -396,13 +396,15 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   protected function toRow(array $article, int $index): ResultRow {
     $row = [];
-    $row['id'] = $article['id'];
-    $row['title'] = $article['title'];
-    $row['slug'] = $article['slug'];
-    $row['content'] = $article['content'];
-    $row['snippet'] = $article['snippet'];
-    $row['publishedDate'] = intdiv($article['publishedDate'], 1000);
-    $row['updatedAt'] = intdiv($article['updatedAt'], 1000);
+    foreach ($article as $field => $value) {
+      $row[$field] = $value;
+      if ($field === 'publishedDate') {
+        $row[$field] = intdiv($value, 1000);
+      }
+      if ($field === 'updatedAt') {
+        $row[$field] = intdiv($value, 1000);
+      }
+    }
     $row['index'] = $index;
     return new ResultRow($row);
   }

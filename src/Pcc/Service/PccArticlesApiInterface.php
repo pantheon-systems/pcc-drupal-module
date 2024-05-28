@@ -10,6 +10,8 @@ interface PccArticlesApiInterface {
   /**
    * Get all articles.
    *
+   * @param array $fields
+   *   The API fields.
    * @param string $siteId
    *   Site ID.
    * @param string $siteToken
@@ -18,11 +20,13 @@ interface PccArticlesApiInterface {
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
    */
-  public function getAllArticles(string $siteId, string $siteToken): array;
+  public function getAllArticles(array $fields, string $siteId, string $siteToken): array;
 
   /**
    * Get all articles.
    *
+   * @param array $fields
+   *   The API fields.
    * @param string $slug_or_id
    *   Content slug or ID.
    * @param string $siteId
@@ -35,6 +39,6 @@ interface PccArticlesApiInterface {
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
    */
-  public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type = 'slug'): mixed;
+  public function getArticle(array $fields, string $slug_or_id, string $siteId, string $siteToken, string $type = 'slug'): mixed;
 
 }

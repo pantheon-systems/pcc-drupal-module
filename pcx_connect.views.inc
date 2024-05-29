@@ -88,7 +88,7 @@ function pcx_connect_views_data() {
         'title' => $translation->translate('Content'),
         'help' => $translation->translate('Article Content'),
         'field' => [
-          'id' => 'standard',
+          'id' => 'pcc_content',
           'click sortable' => FALSE,
         ],
         'filter' => [
@@ -103,7 +103,7 @@ function pcx_connect_views_data() {
         'title' => $translation->translate('Snippet'),
         'help' => $translation->translate('Article Snippet'),
         'field' => [
-          'id' => 'standard',
+          'id' => 'pcc_content',
           'click sortable' => FALSE,
         ],
         'filter' => [

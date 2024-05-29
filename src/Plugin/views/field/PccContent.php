@@ -7,7 +7,7 @@ use Drupal\views\Plugin\views\field\FieldPluginBase;
 use Drupal\views\ResultRow;
 
 /**
- * Default implementation of the base field plugin.
+ * Handler to render html markup.
  *
  * @ingroup views_field_handlers
  *

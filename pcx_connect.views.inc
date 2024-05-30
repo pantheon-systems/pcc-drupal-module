@@ -164,6 +164,20 @@ function pcx_connect_views_data() {
           'id' => 'string',
         ],
       ];
+      $table['tags'] = [
+        'title' => $translation->translate('Tags'),
+        'help' => $translation->translate('Article tags'),
+        'field' => [
+          'id' => 'pcc_tags',
+          'click sortable' => FALSE,
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
+        ],
+      ];
     }
   }
   return array_filter($data);

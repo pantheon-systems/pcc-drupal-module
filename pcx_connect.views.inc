@@ -50,7 +50,7 @@ function pcx_connect_views_data() {
 
       $table['id'] = [
         'title' => $translation->translate('ID'),
-        'help' => $translation->translate('Article ID'),
+        'help' => $translation->translate('PCC Doc ID'),
         'field' => [
           'id' => 'standard',
           'click sortable' => TRUE,
@@ -68,7 +68,7 @@ function pcx_connect_views_data() {
 
       $table['title'] = [
         'title' => $translation->translate('Title'),
-        'help' => $translation->translate('Article title'),
+        'help' => $translation->translate('PCC Doc title'),
         'field' => [
           'id' => 'standard',
           'click sortable' => TRUE,
@@ -86,7 +86,7 @@ function pcx_connect_views_data() {
 
       $table['content'] = [
         'title' => $translation->translate('Content'),
-        'help' => $translation->translate('Article Content'),
+        'help' => $translation->translate('PCC Doc Content'),
         'field' => [
           'id' => 'pcc_content',
           'click sortable' => FALSE,
@@ -101,7 +101,7 @@ function pcx_connect_views_data() {
 
       $table['snippet'] = [
         'title' => $translation->translate('Snippet'),
-        'help' => $translation->translate('Article Snippet'),
+        'help' => $translation->translate('PCC Doc Snippet'),
         'field' => [
           'id' => 'pcc_content',
           'click sortable' => FALSE,
@@ -116,7 +116,7 @@ function pcx_connect_views_data() {
 
       $table['publishedDate'] = [
         'title' => $translation->translate('Published Date'),
-        'help' => $translation->translate('Article publish time'),
+        'help' => $translation->translate('PCC Doc publish time'),
         'field' => [
           'id' => 'date',
           'click sortable' => TRUE,
@@ -134,7 +134,7 @@ function pcx_connect_views_data() {
 
       $table['updatedAt'] = [
         'title' => $translation->translate('Updated At'),
-        'help' => $translation->translate('Article update time'),
+        'help' => $translation->translate('PCC Doc update time'),
         'field' => [
           'id' => 'date',
           'click sortable' => TRUE,
@@ -152,7 +152,7 @@ function pcx_connect_views_data() {
 
       $table['slug'] = [
         'title' => $translation->translate('Slug'),
-        'help' => $translation->translate('Article Slug'),
+        'help' => $translation->translate('PCC Doc Slug'),
         'field' => [
           'id' => 'standard',
           'click sortable' => FALSE,
@@ -166,7 +166,7 @@ function pcx_connect_views_data() {
       ];
       $table['tags'] = [
         'title' => $translation->translate('Tags'),
-        'help' => $translation->translate('Article tags'),
+        'help' => $translation->translate('PCC Doc tags'),
         'field' => [
           'id' => 'pcc_tags',
           'click sortable' => FALSE,

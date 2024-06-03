@@ -3,6 +3,7 @@
 namespace Drupal\pcx_connect\Plugin\views\field;
 
 use Drupal\Core\Form\FormStateInterface;
+use Drupal\Core\Render\Markup;
 use Drupal\Core\Url;
 use Drupal\views\Plugin\views\field\PrerenderList;
 use Drupal\views\ResultRow;
@@ -42,7 +43,7 @@ class PccTags extends PrerenderList {
       '#title' => $this->t('Tags link path'),
       '#type' => 'textfield',
       '#default_value' => $this->options['tags_path'],
-      '#description' => $this->t('The Drupal path or absolute URL for this link. You may enter {{ tag }} as a replacement pattern.'),
+      '#description' => $this->t('The Drupal path or absolute URL for this link. The URL should start with /. You may enter {{ tag }} as a replacement pattern.'),
       '#states' => [
         'visible' => [
           ':input[name="options[tags_make_link]"]' => ['checked' => TRUE],
@@ -52,6 +53,15 @@ class PccTags extends PrerenderList {
     ];
     unset($form['alter']['make_link']);
     unset($form['alter']['path']);
+  }
+
+  /**
+   * {@inheritdoc}
+   */
+  public function validateOptionsForm(&$form, FormStateInterface $form_state) {
+    if (!str_starts_with($form_state->getValue(['options', 'tags_path']), '/')) {
+      $form_state->setError($form['tags_path'], $this->t('The Drupal path or absolute URL for this link should start with /.'));
+    }
   }
 
   /**
@@ -95,7 +105,8 @@ class PccTags extends PrerenderList {
     $value = (string) $this->last_render;
     if ($this->options['tags_make_link']) {
       $tags_path = $this->options['tags_path'];
-      return $this->renderTagAsLink($tags_path, $value);
+      $tag_link = $this->renderTagAsLink($tags_path, $value);
+      return Markup::create($tag_link);
     }
     return $value;
   }
@@ -117,7 +128,7 @@ class PccTags extends PrerenderList {
       $tags_path = strip_tags($tags_path);
       $link_value = str_replace(' ', '-', strtolower($value));
       $link_path = str_replace($token, $link_value, $tags_path);
-      $tags_url = Url::fromUserInput("/$link_path");
+      $tags_url = Url::fromUserInput($link_path);
       $render = [
         '#type' => 'link',
         '#title' => $value,

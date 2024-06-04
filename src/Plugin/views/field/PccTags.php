@@ -69,7 +69,6 @@ class PccTags extends PrerenderList {
    */
   public function preRender(&$values) {
     $this->items = [];
-    $tags = [];
     foreach ($values as $row => $result) {
       $tags = $this->getValue($result);
       if (!empty($tags)) {
@@ -102,7 +101,7 @@ class PccTags extends PrerenderList {
         return $items[$row];
       }
     }
-    return [];
+    return $items;
   }
 
   /**

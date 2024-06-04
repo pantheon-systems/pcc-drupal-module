@@ -70,12 +70,10 @@ class PccTags extends PrerenderList {
   public function preRender(&$values) {
     $this->items = [];
     $tags = [];
-    foreach ($values as $result) {
+    foreach ($values as $row => $result) {
       $tags = $this->getValue($result);
-      if ($tags) {
-        foreach ($tags as $key => $tag) {
-          $this->items[$key]['tags'] = $tag;
-        }
+      if (!empty($tags)) {
+        $this->items[$row]['tags'] = $tags;
       }
     }
   }
@@ -83,19 +81,28 @@ class PccTags extends PrerenderList {
   /**
    * {@inheritdoc}
    */
-  public function getItems(ResultRow $values) {
-    if (!empty($this->items)) {
-      return $this->items;
-    }
-
-    return [];
+  public function render_item($count, $item) {
+    return $item['tags'];
   }
 
   /**
    * {@inheritdoc}
    */
-  public function render_item($count, $item) {
-    return $item['tags'];
+  public function getItems(ResultRow $values) {
+    $field = $this->getValue($values);
+    if (!$field) {
+      return [];
+    }
+    $items = [];
+    foreach ($this->items as $row => $item) {
+      if (!array_diff($field, $item['tags'])) {
+        foreach ($item['tags'] as $key => $tag) {
+          $items[$row][$key]['tags'] = $tag;
+        }
+        return $items[$row];
+      }
+    }
+    return [];
   }
 
   /**

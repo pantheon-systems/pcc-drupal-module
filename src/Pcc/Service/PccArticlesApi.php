@@ -6,12 +6,23 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface;
 use PccPhpSdk\api\ArticlesApi;
+use PccPhpSdk\api\Query\ArticleQueryArgs;
+use PccPhpSdk\api\Query\Enums\ArticleSortField;
+use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
+use PccPhpSdk\api\Query\Enums\ContentType;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
  * PCC Content API Integration service.
  */
 class PccArticlesApi implements PccArticlesApiInterface {
+  /**
+   * Current page cursor.
+   *
+   * @var int
+   */
+  public int $cursor = 0;
+
   /**
    * Pcc API Client.
    *
@@ -59,17 +70,27 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getAllArticles(string $siteId, string $siteToken, array $fields = []): array {
+  public function searchArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
     $articles = [];
     try {
-      $artciles_api = $this->getArticlesApi($siteId, $siteToken);
-      $response = $artciles_api->getAllArticles($fields);
-      $articles = $this->pccArticlesMapper->toArticlesList($response);
+      $articles_api = $this->getArticlesApi($siteId, $siteToken);
+      $queryArgs = new ArticleQueryArgs(
+        ArticleSortField::UPDATED_AT,
+        ArticleSortOrder::DESC,
+        $pager['items_per_page'],
+        $pager['cursor'],
+        ContentType::TEXT_MARKDOWN
+      );
+
+      $response = $articles_api->searchArticles($queryArgs, NULL, $fields);
+
+      $articles['articles'] = $this->pccArticlesMapper->toArticlesList($response);
+      $articles['total'] = $response->total;
+      $articles['cursor'] = $response->cursor;
     }
     catch (PccClientException $e) {
       $this->logger->error('Failed to get articles: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }
-
     return $articles;
   }
 
@@ -77,14 +98,18 @@ class PccArticlesApi implements PccArticlesApiInterface {
    * {@inheritDoc}
    */
   public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type, array $fields = []): mixed {
-    $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
-    $article_api = new ArticlesApi($api_client);
     $article = [];
-    if ($type == 'slug') {
-      $article = $article_api->getArticleBySlug($slug_or_id, $fields);
+    try {
+      $articles_api = $this->getArticlesApi($siteId, $siteToken);
+      if ($type == 'slug') {
+        $article = $articles_api->getArticleBySlug($slug_or_id, $fields);
+      }
+      else {
+        $article = $articles_api->getArticleById($slug_or_id, $fields);
+      }
     }
-    else {
-      $article = $article_api->getArticleById($slug_or_id, $fields);
+    catch (PccClientException $e) {
+      $this->logger->error('Failed to get article: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }
     return $article;
   }

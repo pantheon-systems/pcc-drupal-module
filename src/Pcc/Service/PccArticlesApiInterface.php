@@ -16,11 +16,13 @@ interface PccArticlesApiInterface {
    *   Site Token.
    * @param array $fields
    *   The API fields.
+   * @param array $pager
+   *   The pager options.
    *
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
    */
-  public function getAllArticles(string $siteId, string $siteToken, array $fields = []): array;
+  public function searchArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array;
 
   /**
    * Get all articles.

@@ -113,6 +113,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected $siteKey = '';
 
   /**
+   * The page cursor.
+   *
+   * @var int
+   */
+  protected int $pageCursor = 0;
+
+  /**
    * Constructs a PccSiteViewQuery object.
    *
    * @param array $configuration
@@ -349,8 +356,13 @@ class PccSiteViewQuery extends QueryPluginBase {
         else {
           $this->getArticlesFromPccContentApi($view);
         }
+
+        array_walk($view->result, function (ResultRow $row, $index) {
+          $row->index = $index;
+        });
       }
       catch (\Exception $e) {
+        $view->result = [];
         \Drupal::logger('pcx_connect')->error('Failed to load views output: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
         $this->execute($view);
       }
@@ -361,10 +373,49 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Articles from Pcc Content API Service.
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
-    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $this->fields);
+    $items_per_page = 20;
+    $total_articles = 20;
+    $current_page = 0;
+    if ($view->pager->getCurrentPage()) {
+      $current_page = $view->pager->getCurrentPage();
+    }
+
+    $microtime = microtime(TRUE);
+    // Convert to milliseconds.
+    $this->pageCursor = round($microtime * 1000);
+
+    if (!empty($view->pager->options['items_per_page']) && $view->pager->options['items_per_page'] > 0) {
+      $items_per_page = $view->pager->options['items_per_page'];
+    }
+
+    $pager = [
+      'current_page' => $current_page,
+      'items_per_page' => $items_per_page,
+      'cursor' => $this->pageCursor,
+    ];
+
+    $articles = $this->pccContentApi->searchArticles($this->siteKey, $this->siteToken, $this->fields, $pager);
+    if ($current_page > 0) {
+      $this->pageCursor = $articles['cursor'];
+    }
+
     $index = 0;
-    foreach ($articles as $article) {
-      $view->result[] = $this->toRow($article, $index++);
+    if ($articles) {
+      foreach ($articles['articles'] as $article) {
+        // Render articles based on pager.
+        $view->result[] = $this->toRow($article, $index++);
+      }
+      // Setup the result row objects.
+      $total_articles = $articles['total'];
+      $view->pager->total_items = $total_articles;
+
+      array_walk($view->result, function (ResultRow $row, $index) {
+        $row->index = $index;
+      });
+
+      $view->pager->postExecute($view->result);
+      $view->pager->updatePageInfo();
+      $view->total_rows = $total_articles;
     }
   }
 

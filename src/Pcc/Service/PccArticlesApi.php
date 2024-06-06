@@ -76,6 +76,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
     $articles = [];
     $microtime = microtime(TRUE);
     // Convert to milliseconds.
+    // @todo Find a better way to handle the cursor based on page number.
     self::$cursor = round($microtime * 1000);
     try {
 

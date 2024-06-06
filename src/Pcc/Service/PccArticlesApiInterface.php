@@ -22,7 +22,7 @@ interface PccArticlesApiInterface {
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
    */
-  public function searchArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array;
+  public function getArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array;
 
   /**
    * Get all articles.

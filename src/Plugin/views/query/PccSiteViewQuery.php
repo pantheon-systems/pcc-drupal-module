@@ -99,6 +99,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected $contextualFilters = [];
 
   /**
+   * The Search filters.
+   *
+   * @var array
+   */
+  protected $pccFilters = [];
+
+  /**
    * The site token.
    *
    * @var string
@@ -111,13 +118,6 @@ class PccSiteViewQuery extends QueryPluginBase {
    * @var string
    */
   protected $siteKey = '';
-
-  /**
-   * The page cursor.
-   *
-   * @var int
-   */
-  protected int $pageCursor = 0;
 
   /**
    * Constructs a PccSiteViewQuery object.
@@ -275,12 +275,12 @@ class PccSiteViewQuery extends QueryPluginBase {
   public function addWhere($group, $field, $value = NULL, $operator = NULL): void {
     // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
     // the default group.
+    $filter_field = str_replace('.', '', $field);
     if (empty($group)) {
       $group = 0;
-      $filter_field = str_replace('.', '', $field);
       $this->contextualFilters[$filter_field] = $value;
     }
-
+    $this->pccFilters[$filter_field] = $value;
     // Check for a group.
     if (!isset($this->where[$group])) {
       $this->setWhereGroup('AND', $group);
@@ -380,10 +380,6 @@ class PccSiteViewQuery extends QueryPluginBase {
       $current_page = $view->pager->getCurrentPage();
     }
 
-    $microtime = microtime(TRUE);
-    // Convert to milliseconds.
-    $this->pageCursor = round($microtime * 1000);
-
     if (!empty($view->pager->options['items_per_page']) && $view->pager->options['items_per_page'] > 0) {
       $items_per_page = $view->pager->options['items_per_page'];
     }
@@ -391,13 +387,10 @@ class PccSiteViewQuery extends QueryPluginBase {
     $pager = [
       'current_page' => $current_page,
       'items_per_page' => $items_per_page,
-      'cursor' => $this->pageCursor,
+      'filters' => $this->pccFilters,
     ];
 
-    $articles = $this->pccContentApi->searchArticles($this->siteKey, $this->siteToken, $this->fields, $pager);
-    if ($current_page > 0) {
-      $this->pageCursor = $articles['cursor'];
-    }
+    $articles = $this->pccContentApi->getArticles($this->siteKey, $this->siteToken, $this->fields, $pager);
 
     $index = 0;
     if ($articles) {
@@ -405,17 +398,19 @@ class PccSiteViewQuery extends QueryPluginBase {
         // Render articles based on pager.
         $view->result[] = $this->toRow($article, $index++);
       }
-      // Setup the result row objects.
-      $total_articles = $articles['total'];
-      $view->pager->total_items = $total_articles;
 
-      array_walk($view->result, function (ResultRow $row, $index) {
-        $row->index = $index;
-      });
+      if (count($view->result)) {
+        // Setup the result row objects.
+        $total_articles = $articles['total'];
+        $view->pager->total_items = $total_articles;
 
-      $view->pager->postExecute($view->result);
-      $view->pager->updatePageInfo();
-      $view->total_rows = $total_articles;
+        array_walk($view->result, function (ResultRow $row, $index) {
+          $row->index = $index;
+        });
+
+        $view->pager->updatePageInfo();
+        $view->total_rows = $total_articles;
+      }
     }
   }
 

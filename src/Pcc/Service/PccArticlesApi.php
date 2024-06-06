@@ -7,9 +7,11 @@ use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface;
 use PccPhpSdk\api\ArticlesApi;
 use PccPhpSdk\api\Query\ArticleQueryArgs;
+use PccPhpSdk\api\Query\ArticleSearchArgs;
 use PccPhpSdk\api\Query\Enums\ArticleSortField;
 use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
 use PccPhpSdk\api\Query\Enums\ContentType;
+use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
@@ -21,7 +23,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
    *
    * @var int
    */
-  public int $cursor = 0;
+  public static $cursor = 0;
 
   /**
    * Pcc API Client.
@@ -70,24 +72,48 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function searchArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
+  public function getArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
     $articles = [];
+    $microtime = microtime(TRUE);
+    // Convert to milliseconds.
+    self::$cursor = round($microtime * 1000);
     try {
+
       $articles_api = $this->getArticlesApi($siteId, $siteToken);
       $queryArgs = new ArticleQueryArgs(
         ArticleSortField::UPDATED_AT,
         ArticleSortOrder::DESC,
         $pager['items_per_page'],
-        $pager['cursor'],
+        self::$cursor,
         ContentType::TEXT_MARKDOWN
       );
+      $searchArgs = NULL;
+      if ($pager['filters']) {
+        $filters = $pager['filters'];
+        $searchArgs = new ArticleSearchArgs(
+          '',
+          '',
+          '',
+          PublishStatus::PUBLISHED
+        );
 
-      $response = $articles_api->searchArticles($queryArgs, NULL, $fields);
+        if (isset($filters['title'])) {
+          $searchArgs->setTitleContains($filters['title']);
+        }
+        if (isset($filters['content'])) {
+          $searchArgs->setBodyContains($filters['content']);
+        }
+        if (isset($filters['tags'])) {
+          $searchArgs->setTagContains($filters['tags']);
+        }
+      }
 
+      $response = $articles_api->getAllArticles($queryArgs, $searchArgs, $fields);
       $articles['articles'] = $this->pccArticlesMapper->toArticlesList($response);
       $articles['total'] = $response->total;
-      $articles['cursor'] = $response->cursor;
+      self::$cursor = $response->cursor;
     }
+
     catch (PccClientException $e) {
       $this->logger->error('Failed to get articles: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }

@@ -19,13 +19,6 @@ use PccPhpSdk\Exception\PccClientException;
  */
 class PccArticlesApi implements PccArticlesApiInterface {
   /**
-   * Current page cursor.
-   *
-   * @var int
-   */
-  public static $cursor = 0;
-
-  /**
    * Pcc API Client.
    *
    * @var PccApiClient
@@ -74,18 +67,13 @@ class PccArticlesApi implements PccArticlesApiInterface {
    */
   public function getArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
     $articles = [];
-    $microtime = microtime(TRUE);
-    // Convert to milliseconds.
-    // @todo Find a better way to handle the cursor based on page number.
-    self::$cursor = round($microtime * 1000);
     try {
-
       $articles_api = $this->getArticlesApi($siteId, $siteToken);
       $queryArgs = new ArticleQueryArgs(
         ArticleSortField::UPDATED_AT,
         ArticleSortOrder::DESC,
         $pager['items_per_page'],
-        self::$cursor,
+        $pager['cursor'],
         ContentType::TEXT_MARKDOWN
       );
       $searchArgs = NULL;
@@ -108,11 +96,10 @@ class PccArticlesApi implements PccArticlesApiInterface {
           $searchArgs->setTagContains($filters['tags']);
         }
       }
-
       $response = $articles_api->getAllArticles($queryArgs, $searchArgs, $fields);
       $articles['articles'] = $this->pccArticlesMapper->toArticlesList($response);
       $articles['total'] = $response->total;
-      self::$cursor = $response->cursor;
+      $articles['cursor'] = $response->cursor;
     }
 
     catch (PccClientException $e) {

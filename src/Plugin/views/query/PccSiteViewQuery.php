@@ -9,6 +9,7 @@ use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Defines a Views query class for Config Entities.
@@ -71,6 +72,8 @@ class PccSiteViewQuery extends QueryPluginBase {
 
   /**
    * An array mapping table aliases and field names to field aliases.
+   *
+   * @var array
    */
   protected $fieldAliases = [];
 
@@ -117,6 +120,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected $siteKey = '';
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * Constructs a PccSiteViewQuery object.
    *
    * @param array $configuration
@@ -127,10 +137,13 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The database-specific date handler.
    * @param \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface $pccContentApi
    *   The PCC Content API Service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi, RequestStack $request_stack) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->pccContentApi = $pccContentApi;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -142,6 +155,7 @@ class PccSiteViewQuery extends QueryPluginBase {
       $plugin_id,
       $plugin_definition,
       $container->get('pcx_connect.pcc_articles_api'),
+      $container->get('request_stack')
     );
   }
 
@@ -411,6 +425,8 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Articles from Pcc Content API Service.
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
+    $request = $this->requestStack->getCurrentRequest();
+
     $microtime = microtime(TRUE);
     // Convert to milliseconds.
     $default_cursor = (int) round($microtime * 1000);
@@ -433,6 +449,10 @@ class PccSiteViewQuery extends QueryPluginBase {
       }
     }
 
+    if ($request->query->get('cursor')) {
+      $default_cursor = $request->query->get('cursor');
+    }
+
     $pager = [
       'current_page' => $current_page,
       'items_per_page' => $items_per_page,
@@ -441,20 +461,22 @@ class PccSiteViewQuery extends QueryPluginBase {
     ];
 
     $field_keys = array_keys($this->fields);
-    $articles = $this->pccContentApi->getArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
 
+    $articles = $this->pccContentApi->getArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
     $index = 0;
     if ($articles) {
+
       foreach ($articles['articles'] as $article) {
         // Render articles based on pager.
         $view->result[] = $this->toRow($article, $index++);
       }
 
+      $view->pager->options['cursor'] = $articles['cursor'];
+
       if (count($view->result)) {
         // Setup the result row objects.
         $total_articles = $articles['total'];
         $view->pager->total_items = $total_articles;
-
         array_walk($view->result, function (ResultRow $row, $index) {
           $row->index = $index;
         });

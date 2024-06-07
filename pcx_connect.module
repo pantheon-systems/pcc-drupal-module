@@ -1,0 +1,70 @@
+<?php
+
+/**
+ * @file
+ * This module enables the integration of PCC content sdk.
+ */
+
+use Drupal\Core\Template\Attribute;
+use Drupal\Core\Url;
+
+/**
+ * Implements hook_theme().
+ */
+function pcx_connect_theme($existing, $type, $theme, $path) {
+  $hooks['views_pcc_pager'] = [
+    'variables' => [
+      'tags' => [],
+      'quantity' => 9,
+      'element' => 0,
+      'parameters' => [],
+      'cursor' => 0,
+    ],
+  ];
+
+  return $hooks;
+}
+
+/**
+ * Implements hook_preprocess_views_pcc_pager().
+ */
+function pcx_connect_preprocess_views_pcc_pager(&$variables) {
+  /** @var \Drupal\Core\Pager\PagerManagerInterface $pager_manager */
+  $pager_manager = \Drupal::service('pager.manager');
+
+  $tags = &$variables['tags'];
+  $cursor = $variables['cursor'];
+  $element = $variables['element'];
+  $parameters = $variables['parameters'];
+  $pager = $pager_manager->getPager($element);
+
+  if (!$pager) {
+    return;
+  }
+
+  $current = $pager->getCurrentPage();
+  $total = $pager->getTotalPages();
+
+  if ($total > 1 && $current > 0) {
+    $options = [
+      'query' => $pager_manager->getUpdatedParameters($parameters, $element, $current - 1),
+    ];
+    $variables['items']['previous']['href'] = Url::fromRoute('<current>', [], $options)->toString();
+    if (isset($tags[1])) {
+      $variables['items']['previous']['text'] = $tags[1];
+    }
+    $variables['items']['previous']['attributes'] = new Attribute();
+  }
+
+  if ($current < ($total - 1)) {
+    $options = [
+      'query' => $pager_manager->getUpdatedParameters($parameters, $element, $current + 1),
+    ];
+    $options['query']['cursor'] = $cursor;
+    $variables['items']['next']['href'] = Url::fromRoute('<current>', [], $options)->toString();
+    if (isset($tags[3])) {
+      $variables['items']['next']['text'] = $tags[3];
+    }
+    $variables['items']['next']['attributes'] = new Attribute();
+  }
+}

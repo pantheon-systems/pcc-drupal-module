@@ -96,6 +96,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
           $searchArgs->setTagContains($filters['tags']);
         }
       }
+
       $response = $articles_api->getAllArticles($queryArgs, $searchArgs, $fields);
       $articles['articles'] = $this->pccArticlesMapper->toArticlesList($response);
       $articles['total'] = $response->total;

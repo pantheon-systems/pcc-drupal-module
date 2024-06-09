@@ -9,6 +9,7 @@ use PccPhpSdk\api\Query\ArticleSearchArgs;
 use PccPhpSdk\api\Query\Enums\ArticleSortField;
 use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
 use PccPhpSdk\api\Query\Enums\ContentType;
+use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
@@ -115,7 +116,8 @@ class DebugSiteController extends ControllerBase {
    */
   public function getArticleById(string $id): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-    $response = $contentApi->getArticleById($id);
+    $publishingLevel = $this->getQueryArg('publishingLevel') ?? PublishingLevel::PRODUCTION;
+    $response = $contentApi->getArticleById($id, [], $publishingLevel);
     $content = json_encode($response);
 
     return new JsonResponse(
@@ -137,7 +139,8 @@ class DebugSiteController extends ControllerBase {
    */
   public function getArticleBySlug(string $slug): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-    $response = $contentApi->getArticleBySlug($slug);
+    $publishingLevel = $this->getQueryArg('publishingLevel') ?? PublishingLevel::PRODUCTION;
+    $response = $contentApi->getArticleBySlug($slug, [], $publishingLevel);
     $content = json_encode($response);
 
     return new JsonResponse(

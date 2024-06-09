@@ -8,6 +8,7 @@ use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
+use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
@@ -373,11 +374,26 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
     $index = 0;
+    $publishingLevel = $this->getPublishingLevel();
     if ($type == 'slug') {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'slug', $this->fields);
+      $article_data = $this->pccContentApi->getArticle(
+        $slug_or_id,
+        $this->siteKey,
+        $this->siteToken,
+        'slug',
+        $this->fields,
+        $publishingLevel
+      );
     }
     else {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'id', $this->fields);
+      $article_data = $this->pccContentApi->getArticle(
+        $slug_or_id,
+        $this->siteKey,
+        $this->siteToken,
+        'id',
+        $this->fields,
+        $publishingLevel
+      );
     }
     $article = (array) $article_data;
     $view->result[] = $this->toRow($article, $index++);
@@ -407,6 +423,13 @@ class PccSiteViewQuery extends QueryPluginBase {
     }
     $row['index'] = $index;
     return new ResultRow($row);
+  }
+
+  protected function getPublishingLevel(): PublishingLevel {
+    return match ($this->contextualFilters['publishingLevel']) {
+      'realtime', 'REALTIME' => PublishingLevel::REALTIME,
+      default => PublishingLevel::PRODUCTION,
+    };
   }
 
 }

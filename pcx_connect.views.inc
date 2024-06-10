@@ -164,12 +164,28 @@ function pcx_connect_views_data() {
           'id' => 'string',
         ],
       ];
+
       $table['tags'] = [
         'title' => $translation->translate('Tags'),
         'help' => $translation->translate('PCC Doc tags'),
         'field' => [
           'id' => 'pcc_tags',
           'click sortable' => FALSE,
+        ],
+        'filter' => [
+          'id' => 'string',
+        ],
+        'argument' => [
+          'id' => 'string',
+        ],
+      ];
+
+      $table['publishingLevel'] = [
+        'title' => $translation->translate('Publishing level'),
+        'help' => $translation->translate('PCC Doc Publishing level'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => TRUE,
         ],
         'filter' => [
           'id' => 'string',

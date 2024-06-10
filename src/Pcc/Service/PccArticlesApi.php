@@ -6,6 +6,7 @@ use Drupal\Core\Logger\LoggerChannelFactory;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface;
 use PccPhpSdk\api\ArticlesApi;
+use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
@@ -76,16 +77,23 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type, array $fields = []): mixed {
+  public function getArticle(
+    string $slug_or_id,
+    string $siteId,
+    string $siteToken,
+    string $type,
+    array $fields = [],
+    PublishingLevel $publishingLevel = PublishingLevel::PRODUCTION
+  ): mixed {
     $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
     $article_api = new ArticlesApi($api_client);
-    $article = [];
     if ($type == 'slug') {
-      $article = $article_api->getArticleBySlug($slug_or_id, $fields);
+      $article = $article_api->getArticleBySlug($slug_or_id, $fields, $publishingLevel);
     }
     else {
-      $article = $article_api->getArticleById($slug_or_id, $fields);
+      $article = $article_api->getArticleById($slug_or_id, $fields, $publishingLevel);
     }
+
     return $article;
   }
 

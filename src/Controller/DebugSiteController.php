@@ -204,7 +204,7 @@ class DebugSiteController extends ControllerBase {
    * Get query arguments from URL.
    *
    * @param string $name
-   *   Site Token.
+   *   Name of the query parameter to retrieve.
    *
    * @return string|null
    *   URL query arguments.

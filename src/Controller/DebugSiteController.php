@@ -201,7 +201,13 @@ class DebugSiteController extends ControllerBase {
   }
 
   /**
+   * Get query arguments from URL.
    *
+   * @param string $name
+   *   Site Token.
+   *
+   * @return string|null
+   *   URL query arguments.
    */
   private function getQueryArg(string $name): ?string {
     return $this->requestStack->getCurrentRequest()->query->get($name);

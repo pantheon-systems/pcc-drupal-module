@@ -391,7 +391,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   public function execute(ViewExecutable $view): void {
     $base_table = $view->storage->get('base_table');
-    $view->filter;
+
     $pcc_site = PccSite::load($base_table);
     if ($pcc_site) {
       try {
@@ -426,10 +426,8 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
     $request = $this->requestStack->getCurrentRequest();
-
-    $microtime = microtime(TRUE);
     // Convert to milliseconds.
-    $default_cursor = (int) round($microtime * 1000);
+    $default_cursor = (time() * 1000);
 
     $items_per_page = 20;
     $total_articles = 20;

@@ -11,6 +11,7 @@ use PccPhpSdk\api\Query\ArticleSearchArgs;
 use PccPhpSdk\api\Query\Enums\ArticleSortField;
 use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
 use PccPhpSdk\api\Query\Enums\ContentType;
+use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\Exception\PccClientException;
 
@@ -65,7 +66,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
+  public function getAllArticles(string $siteId, string $siteToken, array $fields = [], array $pager = []): array {
     $articles = [];
     try {
       $articles_api = $this->getArticlesApi($siteId, $siteToken);
@@ -112,20 +113,28 @@ class PccArticlesApi implements PccArticlesApiInterface {
   /**
    * {@inheritDoc}
    */
-  public function getArticle(string $slug_or_id, string $siteId, string $siteToken, string $type, array $fields = []): mixed {
+  public function getArticle(
+    string $slug_or_id,
+    string $siteId,
+    string $siteToken,
+    string $type,
+    array $fields = [],
+    PublishingLevel $publishingLevel = PublishingLevel::PRODUCTION,
+  ): mixed {
     $article = [];
     try {
       $articles_api = $this->getArticlesApi($siteId, $siteToken);
       if ($type == 'slug') {
-        $article = $articles_api->getArticleBySlug($slug_or_id, $fields);
+        $article = $articles_api->getArticleBySlug($slug_or_id, $fields, $publishingLevel);
       }
       else {
-        $article = $articles_api->getArticleById($slug_or_id, $fields);
+        $article = $articles_api->getArticleById($slug_or_id, $fields, $publishingLevel);
       }
     }
     catch (PccClientException $e) {
       $this->logger->error('Failed to get article: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
     }
+
     return $article;
   }
 

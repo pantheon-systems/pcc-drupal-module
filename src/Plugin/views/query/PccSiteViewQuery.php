@@ -8,6 +8,7 @@ use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
+use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
@@ -460,7 +461,7 @@ class PccSiteViewQuery extends QueryPluginBase {
 
     $field_keys = array_keys($this->fields);
 
-    $articles = $this->pccContentApi->getArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
+    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
     $index = 0;
     if ($articles) {
 
@@ -491,11 +492,26 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
     $field_keys = array_keys($this->fields);
     $index = 0;
+    $publishingLevel = $this->getPublishingLevel();
     if ($type == 'slug') {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'slug', $field_keys);
+      $article_data = $this->pccContentApi->getArticle(
+        $slug_or_id,
+        $this->siteKey,
+        $this->siteToken,
+        'slug',
+        $field_keys,
+        $publishingLevel
+      );
     }
     else {
-      $article_data = $this->pccContentApi->getArticle($slug_or_id, $this->siteKey, $this->siteToken, 'id', $field_keys);
+      $article_data = $this->pccContentApi->getArticle(
+        $slug_or_id,
+        $this->siteKey,
+        $this->siteToken,
+        'id',
+        $field_keys,
+        $publishingLevel
+      );
     }
     $article = (array) $article_data;
     $view->result[] = $this->toRow($article, $index++);
@@ -525,6 +541,23 @@ class PccSiteViewQuery extends QueryPluginBase {
     }
     $row['index'] = $index;
     return new ResultRow($row);
+  }
+
+  /**
+   * Get the publishing level.
+   *
+   * @return \PccPhpSdk\api\Query\Enums\PublishingLevel
+   *   The publishing level.
+   */
+  protected function getPublishingLevel(): PublishingLevel {
+    if (!isset($this->contextualFilters['publishingLevel'])) {
+      return PublishingLevel::PRODUCTION;
+    }
+
+    return match ($this->contextualFilters['publishingLevel']) {
+      'realtime', 'REALTIME' => PublishingLevel::REALTIME,
+      default => PublishingLevel::PRODUCTION,
+    };
   }
 
 }

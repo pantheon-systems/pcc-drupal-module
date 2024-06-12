@@ -59,7 +59,7 @@ class PccTags extends PrerenderList {
    * {@inheritdoc}
    */
   public function validateOptionsForm(&$form, FormStateInterface $form_state) {
-    if (!str_starts_with($form_state->getValue(['options', 'tags_path']), '/')) {
+    if ($form_state->getValue(['options', 'tags_make_link']) && !str_starts_with($form_state->getValue(['options', 'tags_path']), '/')) {
       $form_state->setError($form['tags_path'], $this->t('The Drupal path or absolute URL for this link should start with /.'));
     }
   }

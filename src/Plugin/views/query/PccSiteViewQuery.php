@@ -10,6 +10,7 @@ use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
+use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
  * Defines a Views query class for Config Entities.
@@ -21,7 +22,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
  * )
  */
 class PccSiteViewQuery extends QueryPluginBase {
-
   /**
    * An array of sections of the WHERE query.
    *
@@ -72,6 +72,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected $abort = FALSE;
 
   /**
+   * An array mapping table aliases and field names to field aliases.
+   *
+   * @var array
+   */
+  protected $fieldAliases = [];
+
+  /**
    * The IDs of fields whose values should be retrieved by the backend.
    *
    * @var string[]
@@ -114,6 +121,13 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected $siteKey = '';
 
   /**
+   * The request stack.
+   *
+   * @var \Symfony\Component\HttpFoundation\RequestStack
+   */
+  protected $requestStack;
+
+  /**
    * Constructs a PccSiteViewQuery object.
    *
    * @param array $configuration
@@ -124,10 +138,13 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The database-specific date handler.
    * @param \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface $pccContentApi
    *   The PCC Content API Service.
+   * @param \Symfony\Component\HttpFoundation\RequestStack $request_stack
+   *   The request stack.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, PccArticlesApiInterface $pccContentApi, RequestStack $request_stack) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
     $this->pccContentApi = $pccContentApi;
+    $this->requestStack = $request_stack;
   }
 
   /**
@@ -139,6 +156,7 @@ class PccSiteViewQuery extends QueryPluginBase {
       $plugin_id,
       $plugin_definition,
       $container->get('pcx_connect.pcc_articles_api'),
+      $container->get('request_stack')
     );
   }
 
@@ -214,8 +232,47 @@ class PccSiteViewQuery extends QueryPluginBase {
    * @see \Drupal\views\Plugin\views\query\Sql::addField()
    */
   public function addField($table, $field, $alias = '', $params = []): string {
-    $this->fields[$field] = $field;
-    return $field;
+    if ($table == $this->view->storage->get('base_table') && $field == $this->view->storage->get('base_field') && empty($alias)) {
+      $alias = $this->view->storage->get('base_field');
+    }
+
+    if (!$alias && $table) {
+      $alias = $table . '_' . $field;
+    }
+
+    // Make sure an alias is assigned.
+    $alias = $alias ? $alias : $field;
+
+    // PostgreSQL truncates aliases to 63 characters:
+    // https://www.drupal.org/node/571548.
+    // We limit the length of the original alias up to 60 characters
+    // to get a unique alias later if its have duplicates.
+    $alias = substr($alias, 0, 60);
+
+    // Create a field info array.
+    $field_info = [
+      'field' => $field,
+      'table' => $table,
+      'alias' => $alias,
+    ] + $params;
+
+    // Test to see if the field is actually the same or not. Due to
+    // differing parameters changing the aggregation function, we need
+    // to do some automatic alias collision detection:
+    $base = $alias;
+    $counter = 0;
+    while (!empty($this->fields[$alias]) && $this->fields[$alias] != $field_info) {
+      $field_info['alias'] = $alias = $base . '_' . ++$counter;
+    }
+
+    if (empty($this->fields[$alias])) {
+      $this->fields[$alias] = $field_info;
+    }
+
+    // Keep track of all aliases used.
+    $this->fieldAliases[$table][$field] = $alias;
+    return $alias;
+
   }
 
   /**
@@ -269,9 +326,9 @@ class PccSiteViewQuery extends QueryPluginBase {
   public function addWhere($group, $field, $value = NULL, $operator = NULL): void {
     // Ensure all variants of 0 are actually 0. Thus '', 0 and NULL are all
     // the default group.
+    $filter_field = str_replace('.', '', $field);
     if (empty($group)) {
       $group = 0;
-      $filter_field = str_replace('.', '', $field);
       $this->contextualFilters[$filter_field] = $value;
     }
 
@@ -308,11 +365,12 @@ class PccSiteViewQuery extends QueryPluginBase {
     if ($this->fields) {
       $index = 0;
       foreach ($this->fields as $field) {
+        $field_alias = $field['alias'];
         if ($index > 0) {
-          $query_fields .= "\n  $field";
+          $query_fields .= "\n  $field_alias";
         }
         else {
-          $query_fields .= "$field";
+          $query_fields .= "$field_alias";
         }
         $index++;
       }
@@ -334,6 +392,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   public function execute(ViewExecutable $view): void {
     $base_table = $view->storage->get('base_table');
+
     $pcc_site = PccSite::load($base_table);
     if ($pcc_site) {
       try {
@@ -350,8 +409,13 @@ class PccSiteViewQuery extends QueryPluginBase {
         else {
           $this->getArticlesFromPccContentApi($view);
         }
+
+        array_walk($view->result, function (ResultRow $row, $index) {
+          $row->index = $index;
+        });
       }
       catch (\Exception $e) {
+        $view->result = [];
         \Drupal::logger('pcx_connect')->error('Failed to load views output: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
         $this->execute($view);
       }
@@ -362,10 +426,63 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Articles from Pcc Content API Service.
    */
   protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
-    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $this->fields);
+    $request = $this->requestStack->getCurrentRequest();
+    // Convert to milliseconds.
+    $default_cursor = (time() * 1000);
+
+    $items_per_page = 20;
+    $total_articles = 20;
+    $current_page = 0;
+    if ($view->pager->getCurrentPage()) {
+      $current_page = $view->pager->getCurrentPage();
+    }
+
+    if (!empty($view->pager->options['items_per_page']) && $view->pager->options['items_per_page'] > 0) {
+      $items_per_page = $view->pager->options['items_per_page'];
+    }
+
+    $views_filters = [];
+    if ($view->filter) {
+      foreach ($view->filter as $key => $filter) {
+        $views_filters[$key] = $filter->value;
+      }
+    }
+
+    if ($request->query->get('cursor')) {
+      $default_cursor = $request->query->get('cursor');
+    }
+
+    $pager = [
+      'current_page' => $current_page,
+      'items_per_page' => $items_per_page,
+      'filters' => $views_filters,
+      'cursor' => $default_cursor,
+    ];
+
+    $field_keys = array_keys($this->fields);
+
+    $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
     $index = 0;
-    foreach ($articles as $article) {
-      $view->result[] = $this->toRow($article, $index++);
+    if ($articles) {
+
+      foreach ($articles['articles'] as $article) {
+        // Render articles based on pager.
+        $view->result[] = $this->toRow($article, $index++);
+      }
+
+      $view->pager->options['cursor'] = $articles['cursor'];
+
+      if (count($view->result)) {
+        // Setup the result row objects.
+        $total_articles = $articles['total'];
+        $view->pager->total_items = $total_articles;
+        array_walk($view->result, function (ResultRow $row, $index) {
+          $row->index = $index;
+        });
+
+        $view->pager->updatePageInfo();
+        $view->total_rows = $total_articles;
+      }
     }
   }
 
@@ -373,6 +490,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Get Article from Pcc Content API Service.
    */
   protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
+    $field_keys = array_keys($this->fields);
     $index = 0;
     $publishingLevel = $this->getPublishingLevel();
     if ($type == 'slug') {
@@ -381,7 +499,7 @@ class PccSiteViewQuery extends QueryPluginBase {
         $this->siteKey,
         $this->siteToken,
         'slug',
-        $this->fields,
+        $field_keys,
         $publishingLevel
       );
     }
@@ -391,7 +509,7 @@ class PccSiteViewQuery extends QueryPluginBase {
         $this->siteKey,
         $this->siteToken,
         'id',
-        $this->fields,
+        $field_keys,
         $publishingLevel
       );
     }
@@ -425,7 +543,17 @@ class PccSiteViewQuery extends QueryPluginBase {
     return new ResultRow($row);
   }
 
+  /**
+   * Get the publishing level.
+   *
+   * @return \PccPhpSdk\api\Query\Enums\PublishingLevel
+   *   The publishing level.
+   */
   protected function getPublishingLevel(): PublishingLevel {
+    if (!isset($this->contextualFilters['publishingLevel'])) {
+      return PublishingLevel::PRODUCTION;
+    }
+
     return match ($this->contextualFilters['publishingLevel']) {
       'realtime', 'REALTIME' => PublishingLevel::REALTIME,
       default => PublishingLevel::PRODUCTION,

@@ -18,6 +18,8 @@ interface PccArticlesApiInterface {
    *   Site Token.
    * @param array $fields
    *   The API fields.
+   * @param array $pager
+   *   The pager options.
    *
    * @return mixed
    *   Returns array of Articles in the form of Associative data.
@@ -25,14 +27,16 @@ interface PccArticlesApiInterface {
   public function getAllArticles(
     string $siteId,
     string $siteToken,
-    array $fields = []
+    array $fields = [],
+    array $pager = [],
   ): array;
 
   /**
    * Get an article by slug or ID.
    *
-   * This method retrieves an article based on the provided slug or ID. It allows
-   * specifying the publishing level to fetch articles according to their publishing state.
+   * This method retrieves an article based on the provided slug or ID.
+   * It allows specifying the publishing level to fetch articles according
+   * to their publishing state.
    *
    * @param string $slug_or_id
    *   Content slug or ID.
@@ -44,8 +48,9 @@ interface PccArticlesApiInterface {
    *   The filter type.
    * @param array $fields
    *   The API fields.
-   * @param PublishingLevel $publishingLevel
-   *   The publishing level of the article. Defaults to PublishingLevel::PRODUCTION if not specified.
+   * @param \PccPhpSdk\api\Query\Enums\PublishingLevel $publishingLevel
+   *   The publishing level of the article. Defaults to
+   *   PublishingLevel::PRODUCTION if not specified.
    *
    * @return mixed
    *   Returns an article in the form of associative data.
@@ -56,7 +61,7 @@ interface PccArticlesApiInterface {
     string $siteToken,
     string $type,
     array $fields = [],
-    PublishingLevel $publishingLevel = PublishingLevel::PRODUCTION
+    PublishingLevel $publishingLevel = PublishingLevel::PRODUCTION,
   ): mixed;
 
 }

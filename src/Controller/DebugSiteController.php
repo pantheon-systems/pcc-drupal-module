@@ -14,9 +14,9 @@ use PccPhpSdk\api\Query\Enums\PublishStatus;
 use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\core\PccClient;
 use PccPhpSdk\core\PccClientConfig;
+use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\RequestStack;
-use Symfony\Component\DependencyInjection\ContainerInterface;
 
 /**
  * Debug Site Controller.
@@ -26,21 +26,21 @@ class DebugSiteController extends ControllerBase {
   /**
    * The request stack.
    *
-   * @var RequestStack
+   * @var \Symfony\Component\HttpFoundation\RequestStack
    */
   protected RequestStack $requestStack;
 
   /**
    * The Pcc Client.
    *
-   * @var PccClient
+   * @var \PccPhpSdk\core\PccClient
    */
   protected PccClient $pccClient;
 
   /**
    * Constructs an UpdateRootFactory instance.
    *
-   * @param RequestStack $requestStack
+   * @param \Symfony\Component\HttpFoundation\RequestStack $requestStack
    *   Request Stack.
    */
   public function __construct(RequestStack $requestStack) {
@@ -56,7 +56,7 @@ class DebugSiteController extends ControllerBase {
   /**
    * {@inheritdoc}
    *
-   * @param ContainerInterface $container
+   * @param \Symfony\Component\DependencyInjection\ContainerInterface $container
    *   The Drupal service container.
    *
    * @return static
@@ -70,7 +70,7 @@ class DebugSiteController extends ControllerBase {
   /**
    * Get site info.
    *
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   JsonResponse with site info from Pcc.
    */
   public function getSite(): JsonResponse {
@@ -82,17 +82,17 @@ class DebugSiteController extends ControllerBase {
       $content,
       200,
       [],
-      true
+      TRUE
     );
   }
 
   /**
    * Get all articles.
    *
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   JsonResponse with all articles.
    */
-  public function getAllArticles(): JsonResponse {
+  public function getAllPccArticles(): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
     $response = $contentApi->getAllArticles();
     $content = json_encode($response);
@@ -101,7 +101,7 @@ class DebugSiteController extends ControllerBase {
       $content,
       200,
       [],
-      true
+      TRUE
     );
   }
 
@@ -111,7 +111,7 @@ class DebugSiteController extends ControllerBase {
    * @param string $id
    *   Article ID.
    *
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   Json Response containing the article.
    */
   public function getArticleById(string $id): JsonResponse {
@@ -124,7 +124,7 @@ class DebugSiteController extends ControllerBase {
       $content,
       200,
       [],
-      true
+      TRUE
     );
   }
 
@@ -134,7 +134,7 @@ class DebugSiteController extends ControllerBase {
    * @param string $slug
    *   Article Slug.
    *
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   Json Response containing the article.
    */
   public function getArticleBySlug(string $slug): JsonResponse {
@@ -147,23 +147,23 @@ class DebugSiteController extends ControllerBase {
       $content,
       200,
       [],
-      true
+      TRUE
     );
   }
 
   /**
    * Search Articles.
    *
-   * @return JsonResponse
+   * @return \Symfony\Component\HttpFoundation\JsonResponse
    *   Json Response containing the articles.
    */
-  public function searchArticles(): JsonResponse {
+  public function getAllArticles(): JsonResponse {
     $contentApi = new ArticlesApi($this->pccClient);
-    $response = $contentApi->searchArticles(
+    $response = $contentApi->getAllArticles(
       new ArticleQueryArgs(
         ArticleSortField::from($this->getQueryArg('sortField') ?? 'updatedAt'),
         ArticleSortOrder::from($this->getQueryArg('sortOrder') ?? 'DESC'),
-        $this->getQueryArg('pageSize') ?? 10,
+        $this->getQueryArg('pageSize') ?? 20,
         $this->getQueryArg('pageIndex') ?? 1,
         ContentType::from($this->getQueryArg('contentType') ?? 'TREE_PANTHEON_V2')
       ),
@@ -179,7 +179,7 @@ class DebugSiteController extends ControllerBase {
       $content,
       200,
       [],
-      true
+      TRUE
     );
   }
 
@@ -203,6 +203,15 @@ class DebugSiteController extends ControllerBase {
     return $this->requestStack->getCurrentRequest()->query->get('site-token');
   }
 
+  /**
+   * Get query arguments from URL.
+   *
+   * @param string $name
+   *   Name of the query parameter to retrieve.
+   *
+   * @return string|null
+   *   URL query arguments.
+   */
   private function getQueryArg(string $name): ?string {
     return $this->requestStack->getCurrentRequest()->query->get($name);
   }

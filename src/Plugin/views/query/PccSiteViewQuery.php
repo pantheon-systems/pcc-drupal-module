@@ -531,12 +531,14 @@ class PccSiteViewQuery extends QueryPluginBase {
   protected function toRow(array $article, int $index): ResultRow {
     $row = [];
     foreach ($article as $field => $value) {
-      $row[$field] = $value;
-      if ($field === 'publishedDate') {
-        $row[$field] = intdiv($value, 1000);
-      }
-      if ($field === 'updatedAt') {
-        $row[$field] = intdiv($value, 1000);
+      if ($value) {
+        $row[$field] = $value;
+        if ($field === 'publishedDate') {
+          $row[$field] = intdiv($value, 1000);
+        }
+        if ($field === 'updatedAt') {
+          $row[$field] = intdiv($value, 1000);
+        }
       }
     }
     $row['index'] = $index;

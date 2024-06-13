@@ -93,6 +93,11 @@ class PccSiteViewQuery extends QueryPluginBase {
   public $fields = [];
 
   /**
+   * A simple array of order by clauses.
+   */
+  public $orderby = [];
+
+  /**
    * PCC Content API service.
    *
    * @var \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface

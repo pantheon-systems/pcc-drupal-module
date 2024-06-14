@@ -106,12 +106,6 @@ function pcx_connect_views_data() {
           'id' => 'pcc_content',
           'click sortable' => FALSE,
         ],
-        'filter' => [
-          'id' => 'string',
-        ],
-        'argument' => [
-          'id' => 'string',
-        ],
       ];
 
       $table['publishedDate'] = [
@@ -121,13 +115,7 @@ function pcx_connect_views_data() {
           'id' => 'date',
           'click sortable' => TRUE,
         ],
-        'filter' => [
-          'id' => 'date',
-        ],
         'sort' => [
-          'id' => 'date',
-        ],
-        'argument' => [
           'id' => 'date',
         ],
       ];
@@ -139,13 +127,7 @@ function pcx_connect_views_data() {
           'id' => 'date',
           'click sortable' => TRUE,
         ],
-        'filter' => [
-          'id' => 'date',
-        ],
         'sort' => [
-          'id' => 'date',
-        ],
-        'argument' => [
           'id' => 'date',
         ],
       ];
@@ -192,6 +174,14 @@ function pcx_connect_views_data() {
         ],
         'argument' => [
           'id' => 'string',
+        ],
+      ];
+
+      $table['metadata'] = [
+        'title' => $translation->translate('Metadata'),
+        'help' => $translation->translate('PCC Doc Metadata'),
+        'field' => [
+          'id' => 'pcc_metadata',
         ],
       ];
     }

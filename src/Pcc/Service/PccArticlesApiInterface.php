@@ -64,4 +64,17 @@ interface PccArticlesApiInterface {
     PublishingLevel $publishingLevel = PublishingLevel::PRODUCTION,
   ): mixed;
 
+  /**
+   * Get site data based on site id and site token.
+   *
+   * @param string $siteId
+   *   Site ID.
+   * @param string $siteToken
+   *   Site Token.
+   *
+   * @return mixed
+   *   Returns an site data.
+   */
+  public function getPccSiteData(string $siteId, string $siteToken): mixed;
+
 }

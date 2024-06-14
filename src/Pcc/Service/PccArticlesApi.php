@@ -13,6 +13,7 @@ use PccPhpSdk\api\Query\Enums\ArticleSortOrder;
 use PccPhpSdk\api\Query\Enums\ContentType;
 use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use PccPhpSdk\api\Query\Enums\PublishStatus;
+use PccPhpSdk\api\SitesApi;
 use PccPhpSdk\Exception\PccClientException;
 
 /**
@@ -156,6 +157,22 @@ class PccArticlesApi implements PccArticlesApiInterface {
 
     }
     return $this->articlesApi;
+  }
+
+  /**
+   * {@inheritDoc}
+   */
+  public function getPccSiteData(string $siteId, string $siteToken): mixed {
+    $site_data = [];
+    try {
+      $api_client = $this->pccApiClient->getPccClient($siteId, $siteToken);
+      $contentApi = new SitesApi($api_client);
+      $site_data = $contentApi->getSite($siteId);
+    }
+    catch (PccClientException $e) {
+      $this->logger->error('Failed to get site data: <pre>' . print_r($e->getMessage(), TRUE) . '</pre>');
+    }
+    return $site_data;
   }
 
 }

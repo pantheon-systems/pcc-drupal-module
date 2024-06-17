@@ -462,9 +462,9 @@ class PccSiteViewQuery extends QueryPluginBase {
     $field_keys = array_keys($this->fields);
 
     $articles = $this->pccContentApi->getAllArticles($this->siteKey, $this->siteToken, $field_keys, $pager);
+
     $index = 0;
     if ($articles) {
-
       foreach ($articles['articles'] as $article) {
         // Render articles based on pager.
         $view->result[] = $this->toRow($article, $index++);

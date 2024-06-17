@@ -373,7 +373,21 @@ display:
             value: 'No article available'
             format: full_html
           tokenize: false
-      sorts: {  }
+      sorts:
+        updatedAt:
+          id: updatedAt
+          table: pcc_drupal
+          field: updatedAt
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: date
+          order: DESC
+          expose:
+            label: ''
+            field_identifier: ''
+          exposed: false
+          granularity: second
       arguments:
         id:
           id: id
@@ -413,7 +427,48 @@ display:
           path_case: none
           transform_dash: false
           break_phrase: false
-      filters: {  }
+      filters:
+        content:
+          id: content
+          table: pcc_drupal
+          field: content
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: string
+          operator: '='
+          value: ''
+          group: 1
+          exposed: true
+          expose:
+            operator_id: content_op
+            label: ''
+            description: ''
+            use_operator: false
+            operator: content_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: content
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              qa: '0'
+            placeholder: 'Search Blogs'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
       style:
         type: table
         options:
@@ -726,47 +781,6 @@ display:
             default_group: All
             default_group_multiple: {  }
             group_items: {  }
-        content:
-          id: content
-          table: pcc_drupal
-          field: content
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: string
-          operator: '='
-          value: ''
-          group: 1
-          exposed: true
-          expose:
-            operator_id: content_op
-            label: Search
-            description: ''
-            use_operator: false
-            operator: content_op
-            operator_limit_selection: false
-            operator_list: {  }
-            identifier: content
-            required: false
-            remember: false
-            multiple: false
-            remember_roles:
-              authenticated: authenticated
-              anonymous: '0'
-              qa: '0'
-            placeholder: ''
-          is_grouped: false
-          group_info:
-            label: ''
-            description: ''
-            identifier: ''
-            optional: true
-            widget: select
-            multiple: false
-            remember: false
-            default_group: All
-            default_group_multiple: {  }
-            group_items: {  }
       filter_groups:
         operator: AND
         groups:
@@ -1022,6 +1036,7 @@ display:
           date_format: olivero_medium
           custom_date_format: ''
           timezone: ''
+      sorts: {  }
       arguments:
         slug:
           id: slug
@@ -1075,10 +1090,347 @@ display:
         style: false
         row: false
         fields: false
+        sorts: false
         arguments: false
       display_description: ''
       display_extenders: {  }
       path: blogs/%
+    cache_metadata:
+      max-age: -1
+      contexts:
+        - 'languages:language_interface'
+        - url
+        - url.query_args
+        - user.permissions
+      tags: {  }
+  search:
+    id: search
+    display_title: Search
+    display_plugin: page
+    position: 3
+    display_options:
+      fields:
+        slug:
+          id: slug
+          table: pcc_drupal
+          field: slug
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          label: ''
+          exclude: true
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+        title:
+          id: title
+          table: pcc_drupal
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: true
+            path: '/blogs/{{ id }}'
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+        content:
+          id: content
+          table: pcc_drupal
+          field: content
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: pcc_content
+          label: ''
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: true
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 300
+            word_boundary: true
+            ellipsis: true
+            more_link: true
+            more_link_text: 'Read More'
+            more_link_path: '/blogs/{{ slug }}'
+            strip_tags: true
+            trim: true
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+        tags:
+          id: tags
+          table: pcc_drupal
+          field: tags
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: pcc_tags
+          label: Tags
+          exclude: false
+          alter:
+            alter_text: false
+            text: ''
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: true
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
+          type: separator
+          separator: ', '
+          tags_make_link: 1
+          tags_path: '/blogs/{{ tag }}/tags'
+      exposed_form:
+        type: basic
+        options:
+          submit_button: Submit
+          reset_button: false
+          reset_button_label: Reset
+          exposed_sorts_label: 'Sort by'
+          expose_sort_order: true
+          sort_asc_label: Asc
+          sort_desc_label: Desc
+      arguments: {  }
+      filters:
+        content:
+          id: content
+          table: pcc_drupal
+          field: content
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: string
+          operator: '='
+          value: ''
+          group: 1
+          exposed: true
+          expose:
+            operator_id: content_op
+            label: ''
+            description: ''
+            use_operator: false
+            operator: content_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: content
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              qa: '0'
+            placeholder: 'Search Blogs'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+        tags:
+          id: tags
+          table: pcc_drupal
+          field: tags
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: string
+          operator: '='
+          value: ''
+          group: 1
+          exposed: true
+          expose:
+            operator_id: tags_op
+            label: ''
+            description: ''
+            use_operator: false
+            operator: tags_op
+            operator_limit_selection: false
+            operator_list: {  }
+            identifier: tags
+            required: false
+            remember: false
+            multiple: false
+            remember_roles:
+              authenticated: authenticated
+              anonymous: '0'
+              qa: '0'
+            placeholder: 'Search Tags'
+          is_grouped: false
+          group_info:
+            label: ''
+            description: ''
+            identifier: ''
+            optional: true
+            widget: select
+            multiple: false
+            remember: false
+            default_group: All
+            default_group_multiple: {  }
+            group_items: {  }
+      filter_groups:
+        operator: AND
+        groups:
+          1: AND
+      style:
+        type: default
+        options:
+          grouping: {  }
+          row_class: ''
+          default_row_class: true
+      row:
+        type: fields
+        options: {  }
+      defaults:
+        use_ajax: false
+        exposed_form: false
+        style: false
+        row: false
+        fields: false
+        arguments: false
+        filters: false
+        filter_groups: false
+      use_ajax: true
+      display_description: ''
+      exposed_block: true
+      display_extenders: {  }
+      path: search-blogs
     cache_metadata:
       max-age: -1
       contexts:

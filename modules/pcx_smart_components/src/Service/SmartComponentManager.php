@@ -82,7 +82,8 @@ class SmartComponentManager {
      */
     $pccComponents = [];
     foreach ($allComponents as $component) {
-      if ($component instanceof Component && !empty($component->getPluginDefinition()['pcc_component'])) {
+      if ($component instanceof Component
+        && !empty($component->getPluginDefinition()['pcc_component'])) {
         $pccComponents[] = $component;
       }
     }

@@ -1,0 +1,8 @@
+name: 'Smart Components Integration | PCC'
+type: module
+description: 'Smart components integration for PCC based on Drupal Single Directory Components (sdc)'
+package: PCC
+core_version_requirement: ^10 || ^11
+dependencies:
+  - pcx_connect:pcx_connect
+  - drupal:sdc

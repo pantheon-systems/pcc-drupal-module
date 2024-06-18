@@ -1,0 +1,18 @@
+$schema: https://git.drupalcode.org/project/drupal/-/raw/10.1.x/core/modules/sdc/src/metadata.schema.json
+
+name: Lead Capture Form
+status: experimental
+pcc_component: true
+props:
+  type: object
+  required:
+    - title
+  properties:
+    title:
+      type: string
+      title: Title
+      description: Title of the component
+    body:
+      type: string
+      title: Body
+      description: Body of the component

@@ -88,33 +88,36 @@ class SmartComponentRenderer {
     // @todo: Update decoding based on ContentType enum.
     $attrs = !empty($attrs) ? base64_decode($attrs) : NULL;
     $attrs = !empty($attrs) ? json_decode($attrs, TRUE) : NULL;
-    return !empty($attrs) ?
-      [
-        '#type' => 'component',
-        '#component' => $this->getComponentName($type),
-        '#props' => $attrs,
-      ] : NULL;
+
+    return !empty($attrs) ? $this->createRenderableComponent($type, $attrs) : NULL;
   }
 
   /**
-   * Get SDC component name to prepare render array.
+   * Get SDC component to prepare render array.
    *
    * @param string $type
    *   Smart Component Type | Machine name of the SDC Component.
    *
-   * @return string
-   *   Render array component key.
+   * @return array|null
+   *   SDC Component Renderable array.
    */
-  protected function getComponentName(string $type): string {
+  protected function createRenderableComponent(string $type, array $attrs): ?array {
     $component = $this->smartComponentManager->getSDCComponent($type);
-    $provider = 'pcx_smart_components';
-    if (!empty($component) && $component instanceof Component) {
-      if (!empty($component->getPluginDefinition()['provider'])) {
-        $provider = $component->getPluginDefinition()['provider'];
+    $renderableComponent = NULL;
+    if (!empty($component)
+      && $component instanceof Component
+      && $pluginDefinition = $component->getPluginDefinition()) {
+      if (!empty($pluginDefinition['provider'])) {
+        $provider = $pluginDefinition['provider'];
+        $renderableComponent = [
+          '#type' => 'component',
+          '#component' => "$provider:$type",
+          '#props' => $attrs,
+        ];
       }
     }
 
-    return "$provider:$type";
+    return $renderableComponent;
   }
 
 }

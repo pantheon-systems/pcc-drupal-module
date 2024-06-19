@@ -1,0 +1,15 @@
+.views-pcc-live-preview {
+  .views-field-title {
+    box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.28), 0px 2px 0px -8px rgba(0, 0, 0, 0.04);
+    padding: 20px;
+  }
+
+  .livew-preview-bar {
+    display: flex;
+    gap: 20px;
+
+    & .item {
+      flex: 1;
+    }
+  }
+}

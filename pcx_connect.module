@@ -68,3 +68,19 @@ function pcx_connect_preprocess_views_pcc_pager(&$variables) {
     $variables['items']['next']['attributes'] = new Attribute();
   }
 }
+
+/**
+ * Implements hook_preprocess_views_view().
+ */
+function pcx_connect_preprocess_views_view(&$variables) {
+  /** @var \Drupal\views\ViewExecutable $view */
+  $view = $variables['view'];
+  $variables['#cache']['contexts'][] = 'route';
+  if ($view->current_display == 'realtime_preview') {
+    foreach ($view->result as $row) {
+      $previewActiveUntil = $view->field['previewActiveUntil']->getValue($row);
+      $variables['#attached']['drupalSettings']['realtime_preview']['previewActiveUntil'] = $previewActiveUntil;
+    }
+    $variables['#attached']['library'][] = 'pcx_connect/preview-refresh';
+  }
+}

@@ -6,7 +6,7 @@ dependencies:
 id: pantheon_cloud_api
 label: 'Pantheon Cloud API'
 module: views
-description: 'Used for Blog Preview, when requested from PCC Google Docs Plugin'
+description: ''
 tag: ''
 base_table: pcc_drupal
 base_field: id
@@ -19,19 +19,19 @@ display:
     display_options:
       title: ''
       fields:
-        title:
-          id: title
+        id:
+          id: id
           table: pcc_drupal
-          field: title
+          field: id
           relationship: none
           group_type: group
           admin_label: ''
           plugin_id: standard
           label: ''
-          exclude: false
+          exclude: true
           alter:
-            alter_text: true
-            text: '<h1>{{ title }} </h1>'
+            alter_text: false
+            text: ''
             make_link: false
             path: ''
             absolute: false
@@ -68,16 +68,16 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-        tags:
-          id: tags
+        previewActiveUntil:
+          id: previewActiveUntil
           table: pcc_drupal
-          field: tags
+          field: previewActiveUntil
           relationship: none
           group_type: group
           admin_label: ''
-          plugin_id: pcc_tags
-          label: Tags
-          exclude: false
+          plugin_id: date
+          label: ''
+          exclude: true
           alter:
             alter_text: false
             text: ''
@@ -109,7 +109,7 @@ display:
           element_class: ''
           element_label_type: ''
           element_label_class: ''
-          element_label_colon: true
+          element_label_colon: false
           element_wrapper_type: ''
           element_wrapper_class: ''
           element_default_classes: true
@@ -117,10 +117,58 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-          type: separator
-          separator: ', '
-          tags_make_link: 1
-          tags_path: '/blogs/{{ tag }}/tags'
+          date_format: custom
+          custom_date_format: 'Y-m-d H:i:s'
+          timezone: Asia/Kolkata
+        title:
+          id: title
+          table: pcc_drupal
+          field: title
+          relationship: none
+          group_type: group
+          admin_label: ''
+          plugin_id: standard
+          label: ''
+          exclude: false
+          alter:
+            alter_text: true
+            text: "<div class=\"livew-preview-bar\">\r\n<div class=\"item\"><a href=\"https://docs.google.com/document/d/{{ id }}/edit\" targte=\"_blank\">{{ title }} </a></div>\r\n<div class=\"item\">Page preview: <span class=\"preview-status\">Off</span></div>\r\n</div>"
+            make_link: false
+            path: ''
+            absolute: false
+            external: false
+            replace_spaces: false
+            path_case: none
+            trim_whitespace: false
+            alt: ''
+            rel: ''
+            link_class: ''
+            prefix: ''
+            suffix: ''
+            target: ''
+            nl2br: false
+            max_length: 0
+            word_boundary: true
+            ellipsis: true
+            more_link: false
+            more_link_text: ''
+            more_link_path: ''
+            strip_tags: false
+            trim: false
+            preserve_tags: ''
+            html: false
+          element_type: ''
+          element_class: ''
+          element_label_type: ''
+          element_label_class: ''
+          element_label_colon: false
+          element_wrapper_type: ''
+          element_wrapper_class: ''
+          element_default_classes: true
+          empty: ''
+          hide_empty: false
+          empty_zero: false
+          hide_alter_empty: true
         content:
           id: content
           table: pcc_drupal
@@ -170,58 +218,6 @@ display:
           hide_empty: false
           empty_zero: false
           hide_alter_empty: true
-        updatedAt:
-          id: updatedAt
-          table: pcc_drupal
-          field: updatedAt
-          relationship: none
-          group_type: group
-          admin_label: ''
-          plugin_id: date
-          label: 'Last Updated At'
-          exclude: false
-          alter:
-            alter_text: false
-            text: ''
-            make_link: false
-            path: ''
-            absolute: false
-            external: false
-            replace_spaces: false
-            path_case: none
-            trim_whitespace: false
-            alt: ''
-            rel: ''
-            link_class: ''
-            prefix: ''
-            suffix: ''
-            target: ''
-            nl2br: false
-            max_length: 0
-            word_boundary: true
-            ellipsis: true
-            more_link: false
-            more_link_text: ''
-            more_link_path: ''
-            strip_tags: false
-            trim: false
-            preserve_tags: ''
-            html: false
-          element_type: ''
-          element_class: ''
-          element_label_type: ''
-          element_label_class: ''
-          element_label_colon: true
-          element_wrapper_type: ''
-          element_wrapper_class: ''
-          element_default_classes: true
-          empty: ''
-          hide_empty: false
-          empty_zero: false
-          hide_alter_empty: true
-          date_format: olivero_medium
-          custom_date_format: ''
-          timezone: ''
       pager:
         type: mini
         options:
@@ -254,7 +250,7 @@ display:
         type: none
         options: {  }
       cache:
-        type: tag
+        type: none
         options: {  }
       empty: {  }
       sorts: {  }
@@ -346,6 +342,8 @@ display:
         type: views_query
         options: {  }
       relationships: {  }
+      css_class: views-pcc-live-preview
+      use_ajax: true
       header: {  }
       footer: {  }
       display_extenders: {  }
@@ -356,13 +354,12 @@ display:
         - url
         - url.query_args
       tags: {  }
-  preview:
-    id: preview
-    display_title: Preview
+  realtime_preview:
+    id: realtime_preview
+    display_title: Page
     display_plugin: page
     position: 1
     display_options:
-      display_description: ''
       display_extenders: {  }
       path: api/pantheoncloud/document/%
     cache_metadata:

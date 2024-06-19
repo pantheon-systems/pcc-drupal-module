@@ -1,0 +1,10 @@
+preview-refresh:
+  css:
+    theme:
+      css/live-preview.css: {}
+  js:
+    js/preview-refresh.js: {}
+  dependencies:
+    - core/jquery
+    - core/drupalSettings
+    - core/drupal

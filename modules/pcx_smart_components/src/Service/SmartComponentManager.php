@@ -2,6 +2,7 @@
 
 namespace Drupal\pcx_smart_components\Service;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\sdc\Component\ComponentMetadata;
 use Drupal\sdc\ComponentPluginManager;
 use Drupal\sdc\Plugin\Component;
@@ -12,6 +13,11 @@ use Drupal\sdc\Plugin\Component;
 class SmartComponentManager {
 
   /**
+   * Cache ID.
+   */
+  const CACHE_ID  = 'pcx_smart_components';
+
+  /**
    * SDC Component Plugin Manager.
    *
    * @var ComponentPluginManager $componentPluginManager
@@ -19,13 +25,23 @@ class SmartComponentManager {
   protected ComponentPluginManager $componentPluginManager;
 
   /**
+   * The cache backend.
+   *
+   * @var \Drupal\Core\Cache\CacheBackendInterface
+   */
+  protected $cacheBackend;
+
+  /**
    * Constructs SmartComponentManager.
    *
    * @param ComponentPluginManager $componentPluginManager
    *   SDC Component Plugin Manager.
+   * @param CacheBackendInterface $cacheBackend
+   *   Cache Backend Interface.
    */
-  public function __construct(ComponentPluginManager $componentPluginManager) {
+  public function __construct(ComponentPluginManager $componentPluginManager, CacheBackendInterface $cacheBackend) {
     $this->componentPluginManager = $componentPluginManager;
+    $this->cacheBackend = $cacheBackend;
   }
 
   /**
@@ -35,6 +51,11 @@ class SmartComponentManager {
    *   Array of smart components.
    */
   public function getAllSmartComponents(): array {
+    $cachedData = $this->cacheBackend->get(self::CACHE_ID);
+    if (!empty($cachedData)) {
+      return $cachedData->data;
+    }
+
     $pccComponents = $this->getAllPccComponents();
 
     $smartComponents = [];
@@ -43,7 +64,29 @@ class SmartComponentManager {
       $smartComponents[strtoupper($componentId)] = $this->toSmartComponent($pccComponent);
     }
 
+    $this->cacheBackend->set(self::CACHE_ID, $smartComponents);
     return $smartComponents;
+  }
+
+  /**
+   * Get Smart Component converting available Drupal SDC components.
+   *
+   * @param string $componentId
+   *   Component ID / name in uppercase.
+   *
+   * @return array
+   *   Smart Component data in array.
+   */
+  public function getSmartComponent(string $componentId): array {
+    $cachedData = $this->cacheBackend->get(self::CACHE_ID);
+    if (!empty($cachedData)
+      && !empty($cachedData->data)
+      && !empty($cachedData->data[$componentId])) {
+      return $cachedData->data[$componentId];
+    }
+
+    $smartComponents = $this->getAllSmartComponents();
+    return $smartComponents[$componentId] ?? [];
   }
 
   /**

@@ -5,3 +5,10 @@ pcx_smart_components.api_component_schema:
     _controller: '\Drupal\pcx_smart_components\Controller\ComponentSchemaController'
   requirements:
     _permission: 'access content'
+pcx_smart_components:api_component_schema_component:
+  path: '/api/pantheoncloud/component_schema/{component_id}'
+  defaults:
+    _title: 'Smart Component Schema'
+    _controller: '\Drupal\pcx_smart_components\Controller\ComponentSchemaController::getComponent'
+  requirements:
+    _permission: 'access content'

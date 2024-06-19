@@ -3,7 +3,6 @@ dependencies:
   config:
     - system.menu.main
   module:
-    - pcc_site
     - pcx_connect
     - user
 id: blogs

@@ -6,7 +6,7 @@
       const livePreviewText = document.querySelector('.preview-status');
       const livePreviewTimeRemaining = settings.realtime_preview.previewActiveUntil - Date.now();
       // Live preview is active for 600000 mili-seconds.
-      // Auto refresh the views for 1 min = 400000 mili-seconds.
+      // Auto refresh the views for 200000 mili-seconds.
       if ($(previwView).length > 0 && livePreviewTimeRemaining > 400000) {
         if (settings.realtime_preview.previewActiveUntil) {
           livePreviewText.innerText = "On"

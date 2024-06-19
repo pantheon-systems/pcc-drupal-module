@@ -60,7 +60,8 @@ class SmartComponentManager {
     $result = NULL;
 
     foreach ($allPccComponents as $pccComponent) {
-      if ($machineName === $pccComponent->metadata->machineName) {
+      if ($pccComponent instanceof Component
+        && $machineName === $pccComponent->metadata->machineName) {
         $result = $pccComponent;
       }
     }

@@ -1,6 +1,6 @@
 (function ($, Drupal, drupalSettings) {
   Drupal.behaviors.preview_refresh = {
-    attach: function (context, settings) {
+    attach: (context, settings) => {
       let interval = 2000;
       const previwView = '.views-pcc-live-preview';
       const livePreviewText = document.querySelector('.preview-status');
@@ -29,7 +29,7 @@
         }
       }
     },
-    refresh: function (previwView) {
+    refresh: (previwView) => {
       $(previwView).trigger('RefreshView');
     }
   }

@@ -112,7 +112,7 @@ class PccMetadata extends FieldPluginBase {
    */
   public function validateOptionsForm(&$form, FormStateInterface $form_state) {
     if (!$form_state->getValue(['options', 'pcc_metadata_fields'])) {
-      $form_state->setError($form['pcc_metadata'], $this->t('Metadata fields are not available for this site.'));
+      $form_state->setError($form['pcc_metadata'], $this->t('Please select a metadata field.'));
     }
   }
 

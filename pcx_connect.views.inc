@@ -132,6 +132,15 @@ function pcx_connect_views_data() {
         ],
       ];
 
+      $table['previewActiveUntil'] = [
+        'title' => $translation->translate('Preview Active Until'),
+        'help' => $translation->translate('PCC Doc Preview Active Until'),
+        'field' => [
+          'id' => 'standard',
+          'click sortable' => TRUE,
+        ],
+      ];
+
       $table['slug'] = [
         'title' => $translation->translate('Slug'),
         'help' => $translation->translate('PCC Doc Slug'),

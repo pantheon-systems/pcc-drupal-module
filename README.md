@@ -4,7 +4,7 @@ Drupal Module for PCC Integration
 
 ## Pre-requisite
 
-PCX Connect allows Drupal integration with multiple PCC Sites. As a pre-requisite, we need following:
+PCX Connect allows Drupal integration with multiple PCC Sites. As a pre-requisite, we need the following:
 
 - PCC Site ID & Token
   (Refer to [Managing PCC Sites](#managing-pcc-sites) to know more about how to create a PCC site or access an existing site)
@@ -34,7 +34,7 @@ setup `pcc-cli` and then we can create PCC Site(s).
 
     ![Create PCC Site](./screenshots/create-pcc-site.png)
 
-**Note: For Reference, PCX Connect module ships an example connected PCC Site.**
+**Note: For Reference, the PCX Connect module ships an example connected PCC Site.**
 
 ## Managing content display of PCC Site
 
@@ -42,7 +42,7 @@ Once the PCC Site is created and added in Drupal, we can display content from PC
 
 ### Creating Listing of the content
 
-To create listing of the content from PCC site, create a view to show `PCC Site - Site Name`. We have the following
+To create a listing of the content from PCC site, create a view to show `PCC Site - Site Name`. We have the following
 fields, filters, sorting and pagination available:
 
 ![Create View - Show PCC Site](./screenshots/create-pcc-site-views.png)
@@ -62,7 +62,7 @@ fields, filters, sorting and pagination available:
 
 #### Metadata fields
 
-PCX Connect module also support Metadata fields. Search for Metadata field, add the field, select one of the available
+PCX Connect module also supports Metadata fields. Search for Metadata field, add the field, select one of the available
 metadata fields.
 
 #### Filtering, Sorting and Pagination
@@ -71,7 +71,7 @@ Following features are supported for views:
 
 ##### Filtering
 
-Module supports Views content filtering for `Title`, `Content`, `Tags` field for now. Additionally, usage is limited to
+Module supports Views content filtering for `Title`, `Content`, `Tags` fields for now. Additionally, usage is limited to
 `is equal to` operator while it corresponds to search docs using `contains` operator via PCC API.
 
 ##### Sorting
@@ -96,7 +96,7 @@ Following contextual filters are fully supported that can help in building indiv
 ### Live Preview of content
 
 PCX Connect module installs optionally `pantheon_cloud_api` view that creates route `/api/pantheoncloud/document/%` for
-integration with Pantheon Content Cloud. This uses `Publishing Level` contextual filter. Preview supports auto refresh.
+integration with Pantheon Content Cloud. This uses `Publishing Level` contextual filter. Preview supports auto-refresh.
 
 ## Smart Components Integration | PCC | Submodule
 

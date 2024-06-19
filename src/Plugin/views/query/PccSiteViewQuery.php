@@ -93,6 +93,11 @@ class PccSiteViewQuery extends QueryPluginBase {
   public $fields = [];
 
   /**
+   * A simple array of order by clauses.
+   */
+  public $orderby = [];
+
+  /**
    * PCC Content API service.
    *
    * @var \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface
@@ -345,6 +350,51 @@ class PccSiteViewQuery extends QueryPluginBase {
   }
 
   /**
+   * Add an ORDER BY clause to the query.
+   *
+   * @param $table
+   *   The table this field is part of. If a formula, enter NULL.
+   *   If you want to orderby random use "rand" as table and nothing else.
+   * @param $field
+   *   The field or formula to sort on. If already a field, enter NULL
+   *   and put in the alias.
+   * @param $order
+   *   Either ASC or DESC.
+   * @param $alias
+   *   The alias to add the field as. In SQL, all fields in the order by
+   *   must also be in the SELECT portion. If an $alias isn't specified
+   *   one will be generated for from the $field; however, if the
+   *   $field is a formula, this alias will likely fail.
+   * @param $params
+   *   Any params that should be passed through to the addField.
+   */
+  public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', $params = []) {
+    // Only ensure the table if it's not the special random key.
+    // @todo: Maybe it would make sense to just add an addOrderByRand or something similar.
+    if ($table && $table != 'rand') {
+      $this->ensureTable($table);
+    }
+
+    // Only fill out this aliasing if there is a table;
+    // otherwise we assume it is a formula.
+    if (!$alias && $table) {
+      $as = $table . '_' . $field;
+    }
+    else {
+      $as = $alias;
+    }
+
+    if ($field) {
+      $as = $this->addField($table, $field, $as, $params);
+    }
+
+    $this->orderby[] = [
+      'field' => $as,
+      'direction' => strtoupper($order),
+    ];
+  }
+
+  /**
    * {@inheritdoc}
    *
    * Generates a GRAPHQL query.
@@ -552,14 +602,14 @@ class PccSiteViewQuery extends QueryPluginBase {
    *   The publishing level.
    */
   protected function getPublishingLevel(): PublishingLevel {
-    if (!isset($this->contextualFilters['publishingLevel'])) {
-      return PublishingLevel::PRODUCTION;
+    $publishingLevel = PublishingLevel::PRODUCTION;
+    if (isset($this->contextualFilters['publishingLevel'])) {
+      $publishingLevel = match ($this->contextualFilters['publishingLevel']) {
+        'realtime', 'REALTIME' => PublishingLevel::REALTIME,
+        default => PublishingLevel::PRODUCTION,
+      };
     }
-
-    return match ($this->contextualFilters['publishingLevel']) {
-      'realtime', 'REALTIME' => PublishingLevel::REALTIME,
-      default => PublishingLevel::PRODUCTION,
-    };
+    return $publishingLevel;
   }
 
 }

@@ -42,9 +42,7 @@ class ComponentSchemaController extends ControllerBase implements ContainerInjec
    */
   public function __invoke(): JsonResponse {
     $smartComponents = $this->smartComponentManager->getAllSmartComponents();
-    $smartComponentsJson = json_encode($smartComponents);
-
-    return new JsonResponse(json_decode($smartComponentsJson, TRUE));
+    return new JsonResponse($smartComponents);
   }
 
 }

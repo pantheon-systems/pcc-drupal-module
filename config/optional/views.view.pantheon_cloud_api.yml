@@ -1,7 +1,6 @@
 status: true
 dependencies:
   module:
-    - pcc_site
     - pcx_connect
 id: pantheon_cloud_api
 label: 'Pantheon Cloud API'

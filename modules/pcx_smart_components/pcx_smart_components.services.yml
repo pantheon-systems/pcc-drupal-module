@@ -1,7 +1,7 @@
 services:
   pcx_smart_components.smart_component_manager:
     class: Drupal\pcx_smart_components\Service\SmartComponentManager
-    arguments: ['@plugin.manager.sdc']
+    arguments: ['@plugin.manager.sdc', '@cache.default']
   pcx_smart_components.renderer:
     class: Drupal\pcx_smart_components\Service\SmartComponentRenderer
     arguments: ['@logger.factory', '@pcx_smart_components.smart_component_manager']

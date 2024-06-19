@@ -2,6 +2,7 @@
 
 namespace Drupal\pcx_smart_components\Controller;
 
+use Drupal\Core\Cache\CacheableJsonResponse;
 use Drupal\Core\Controller\ControllerBase;
 use Drupal\Core\DependencyInjection\ContainerInjectionInterface;
 use Drupal\pcx_smart_components\Service\SmartComponentManager;
@@ -42,7 +43,12 @@ class ComponentSchemaController extends ControllerBase implements ContainerInjec
    */
   public function __invoke(): JsonResponse {
     $smartComponents = $this->smartComponentManager->getAllSmartComponents();
-    return new JsonResponse($smartComponents);
+    return new CacheableJsonResponse($smartComponents);
+  }
+
+  public function getComponent(string $component_id) {
+    $smartComponent = $this->smartComponentManager->getSmartComponent($component_id);
+    return new CacheableJsonResponse($smartComponent);
   }
 
 }

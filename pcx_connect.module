@@ -78,8 +78,9 @@ function pcx_connect_preprocess_views_view(&$variables) {
   $variables['#cache']['contexts'][] = 'route';
   if ($view->current_display == 'realtime_preview') {
     foreach ($view->result as $row) {
-      $previewActiveUntil = $view->field['previewActiveUntil']->getValue($row);
-      $variables['#attached']['drupalSettings']['realtime_preview']['previewActiveUntil'] = $previewActiveUntil;
+      if (!empty($row->previewActiveUntil)) {
+        $variables['#attached']['drupalSettings']['realtime_preview']['previewActiveUntil'] = $row->previewActiveUntil;
+      }
     }
     $variables['#attached']['library'][] = 'pcx_connect/preview-refresh';
   }

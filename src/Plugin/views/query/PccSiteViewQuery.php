@@ -94,6 +94,8 @@ class PccSiteViewQuery extends QueryPluginBase {
 
   /**
    * A simple array of order by clauses.
+   *
+   * @var array
    */
   public $orderby = [];
 
@@ -266,6 +268,7 @@ class PccSiteViewQuery extends QueryPluginBase {
     // to do some automatic alias collision detection:
     $base = $alias;
     $counter = 0;
+
     while (!empty($this->fields[$alias]) && $this->fields[$alias] != $field_info) {
       $field_info['alias'] = $alias = $base . '_' . ++$counter;
     }
@@ -273,6 +276,13 @@ class PccSiteViewQuery extends QueryPluginBase {
     if (empty($this->fields[$alias])) {
       $this->fields[$alias] = $field_info;
     }
+
+    // Harcoded field.
+    $this->fields['previewActiveUntil'] = [
+      "field" => "previewActiveUntil",
+      "table" => "",
+      "alias" => "previewActiveUntil",
+    ];
 
     // Keep track of all aliases used.
     $this->fieldAliases[$table][$field] = $alias;
@@ -352,25 +362,25 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * Add an ORDER BY clause to the query.
    *
-   * @param $table
+   * @param string|null $table
    *   The table this field is part of. If a formula, enter NULL.
    *   If you want to orderby random use "rand" as table and nothing else.
-   * @param $field
+   * @param string|null $field
    *   The field or formula to sort on. If already a field, enter NULL
    *   and put in the alias.
-   * @param $order
+   * @param string $order
    *   Either ASC or DESC.
-   * @param $alias
+   * @param string $alias
    *   The alias to add the field as. In SQL, all fields in the order by
    *   must also be in the SELECT portion. If an $alias isn't specified
    *   one will be generated for from the $field; however, if the
    *   $field is a formula, this alias will likely fail.
-   * @param $params
+   * @param array $params
    *   Any params that should be passed through to the addField.
    */
   public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', $params = []) {
     // Only ensure the table if it's not the special random key.
-    // @todo: Maybe it would make sense to just add an addOrderByRand or something similar.
+    // @todo Maybe it would make sense to just add an addOrderByRand or something similar.
     if ($table && $table != 'rand') {
       $this->ensureTable($table);
     }

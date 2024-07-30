@@ -1,5 +1,5 @@
 {
-  "name": "digitalpolygon/pcx_connect",
+  "name": "pantheon-systems/pcx_connect",
   "description": "Drupal Module for PCC Integration.",
   "type": "drupal-module",
   "license": "GPL-2.0-or-later",
@@ -10,6 +10,5 @@
         "drush.services.yml": "^9 || ^10 || ^11"
       }
     }
-  },
-  "version": "0.0.1"
+  }
 }

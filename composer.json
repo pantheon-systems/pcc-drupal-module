@@ -1,9 +1,15 @@
 {
-  "name": "digitalpolygon/pcx_connect",
+  "name": "pantheon-systems/pcx_connect",
   "description": "Drupal Module for PCC Integration.",
   "type": "drupal-module",
   "license": "GPL-2.0-or-later",
   "homepage": "https://drupal.org/project/pcx_connect",
+  "repositories": [
+    {
+      "type": "vcs",
+      "url": "git@github.com:pantheon-systems/pcc-php-sdk.git"
+    }
+  ],
   "extra": {
     "drush": {
       "services": {
@@ -11,5 +17,7 @@
       }
     }
   },
-  "version": "0.0.1"
+  "require": {
+    "pantheon-systems/pcc-php-sdk": "^0.0.1"
+  }
 }

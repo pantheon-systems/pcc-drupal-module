@@ -1,7 +1,0 @@
-status: true
-dependencies: {  }
-id: pcc_drupal
-label: PCC-Drupal
-site_key: 6Vg637OyvDmm10qxuLZS
-site_token: 9c61fdc7-8aba-4a21-b440-07c7e3b32527
-site_url: 'https://dev-drupal-pcc-demo.pantheonsite.io'

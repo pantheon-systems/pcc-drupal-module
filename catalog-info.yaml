@@ -8,11 +8,8 @@ metadata:
   description: An add-on module for pantheon site development with Drupal
   annotations:
     pantheon.io/service-catalog/subdir: /
-    github.com/project-slug: @pantheon-systems/pcc-drupal-module
-    github.com/team-slug: @pantheon-systems/pcc
-tags:
-    - php
-      drupal
+    github.com/project-slug: pantheon-systems/pcc-drupal-module
+    github.com/team-slug: pantheon-systems/pcc
 spec:
   type: library
   lifecycle: Introduction

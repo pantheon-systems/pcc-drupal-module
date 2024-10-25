@@ -4,7 +4,7 @@
 apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
-  name: pantheon content cloud drupal module
+  name: pantheon-content-cloud-drupal-module
   description: An add-on module for pantheon site development with Drupal
   annotations:
     pantheon.io/service-catalog/subdir: /

@@ -5,7 +5,7 @@ apiVersion: backstage.io/v1alpha1
 kind: Component
 metadata:
   name: pantheon-content-cloud-drupal-module
-  description: An add-on module for pantheon site development with Drupal
+  description: An add-on module for pcc site development with Drupal
   annotations:
     pantheon.io/service-catalog/subdir: /
     github.com/project-slug: pantheon-systems/pcc-drupal-module

@@ -1,0 +1,16 @@
+# https://backstage.io/docs/features/software-catalog/
+# https://backstage.io/docs/features/software-catalog/descriptor-format
+---
+apiVersion: backstage.io/v1alpha1
+kind: Component
+metadata:
+  name: pantheon-content-cloud-drupal-module
+  description: An add-on module for pcc site development with Drupal
+  annotations:
+    pantheon.io/service-catalog/subdir: /
+    github.com/project-slug: pantheon-systems/pcc-drupal-module
+    github.com/team-slug: pantheon-systems/pcc
+spec:
+  type: library
+  lifecycle: Introduction
+  owner: content-cloud

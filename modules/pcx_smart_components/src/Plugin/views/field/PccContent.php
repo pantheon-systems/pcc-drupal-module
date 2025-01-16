@@ -16,13 +16,6 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 class PccContent extends BasePccContent {
 
   /**
-   * Smart Component Renderer.
-   *
-   * @var SmartComponentRenderer $smartComponentRenderer
-   */
-  protected SmartComponentRenderer $smartComponentRenderer;
-
-  /**
    * PccContent Plugin constructor.
    *
    * @param ContainerInterface $container
@@ -36,16 +29,20 @@ class PccContent extends BasePccContent {
    * @param SmartComponentRenderer $smartComponentRenderer
    *   Smart Component Renderer.
    */
-  public function __construct(array $configuration, $plugin_id, $plugin_definition, SmartComponentRenderer $smartComponentRenderer) {
+  public function __construct(array $configuration, $plugin_id, $plugin_definition, protected SmartComponentRenderer $smartComponentRenderer) {
     parent::__construct($configuration, $plugin_id, $plugin_definition);
-    $this->smartComponentRenderer = $smartComponentRenderer;
   }
 
   /**
    * {@inheritDoc}
    */
   public static function create(ContainerInterface $container, array $configuration, $plugin_id, $plugin_definition) {
-    return new static($configuration, $plugin_id, $plugin_definition, $container->get('pcx_smart_components.renderer'));
+    return new static(
+      $configuration, 
+      $plugin_id, 
+      $plugin_definition, 
+      $container->get('pcx_smart_components.renderer')
+    );
   }
 
   /**

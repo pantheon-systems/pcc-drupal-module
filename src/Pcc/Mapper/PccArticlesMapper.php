@@ -33,11 +33,7 @@ class PccArticlesMapper implements PccArticlesMapperInterface {
    *   The Articles list.
    */
   public function toArticlesList(PaginatedArticles $paginatedArticles): array {
-    $list = [];
-    foreach ($paginatedArticles->articles as $article) {
-      $list[] = $this->toArticleData($article);
-    }
-    return $list;
+    return array_map([$this, 'toArticleData'], $paginatedArticles->articles);
   }
 
 }

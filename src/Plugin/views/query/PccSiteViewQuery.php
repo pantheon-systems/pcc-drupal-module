@@ -421,20 +421,7 @@ class PccSiteViewQuery extends QueryPluginBase {
       }
     }
     $query_condition .= ")";
-    $query_fields = '';
-    if ($this->fields) {
-      $index = 0;
-      foreach ($this->fields as $field) {
-        $field_alias = $field['alias'];
-        if ($index > 0) {
-          $query_fields .= "\n  $field_alias";
-        }
-        else {
-          $query_fields .= "$field_alias";
-        }
-        $index++;
-      }
-    }
+    $query_fields = implode("\n ", array_column($this->fields, 'alias'));
     $entity = 'articles';
     if (!empty($this->contextualFilters)) {
       $entity = 'article';

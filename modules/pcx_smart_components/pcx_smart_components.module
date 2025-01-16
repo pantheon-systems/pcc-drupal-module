@@ -5,11 +5,13 @@
  * This file contains hooks for the module.
  */
 
+use Drupal\pcx_smart_components\Plugin\views\field\PccContent;
+
 /**
  * Implements hook_views_plugins_field_alter()
  */
 function pcx_smart_components_views_plugins_field_alter(array &$plugins) {
   if (!empty($plugins['pcc_content'])) {
-    $plugins['pcc_content']['class'] = 'Drupal\pcx_smart_components\Plugin\views\field\PccContent';
+    $plugins['pcc_content']['class'] = PccContent::class;
   }
 }

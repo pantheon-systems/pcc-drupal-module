@@ -485,7 +485,7 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * Get Articles from Pcc Content API Service.
    */
-  protected function getArticlesFromPccContentApi(ViewExecutable &$view): void {
+  protected function getArticlesFromPccContentApi(ViewExecutable $view): void {
     $request = $this->requestStack->getCurrentRequest();
     // Convert to milliseconds.
     $default_cursor = (time() * 1000);
@@ -549,7 +549,7 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * Get Article from Pcc Content API Service.
    */
-  protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable &$view, string $slug_or_id, string $type): void {
+  protected function getArticleBySlugOrIdFromPccContentApi(ViewExecutable $view, string $slug_or_id, string $type): void {
     $field_keys = array_keys($this->fields);
     $index = 0;
     $publishingLevel = $this->getPublishingLevel();
@@ -592,13 +592,10 @@ class PccSiteViewQuery extends QueryPluginBase {
     $row = [];
     foreach ($article as $field => $value) {
       if ($value) {
-        $row[$field] = $value;
-        if ($field === 'publishedDate') {
-          $row[$field] = intdiv($value, 1000);
-        }
-        if ($field === 'updatedAt') {
-          $row[$field] = intdiv($value, 1000);
-        }
+        $row[$field] = match ($field) {
+          'publishedDate', 'updatedAt' => intdiv($value, 1000),
+          default => $value,
+        };
       }
     }
     $row['index'] = $index;

@@ -58,7 +58,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
    * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerChannelFactory
    *   Logger Channel Factory.
    */
-  public function __construct(PccApiClient $pccApiClient, PccArticlesMapperInterface $pccArticlesMapper, LoggerChannelFactory $loggerChannelFactory) {
+  public function __construct(PccApiClient $pccApiClient, PccArticlesMapperInterface $pccArticlesMapper, LoggerChannelFactoryInterface $loggerChannelFactory) {
     $this->logger = $loggerChannelFactory->get('pcx_connect');
     $this->pccApiClient = $pccApiClient;
     $this->pccArticlesMapper = $pccArticlesMapper;

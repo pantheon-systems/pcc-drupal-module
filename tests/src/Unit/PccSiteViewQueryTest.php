@@ -76,8 +76,8 @@ class PccSiteViewQueryTest extends UnitTestCase {
         ],
         'expected_query' => <<<GRAPHQL
         article (
-          contentType: TREE_PANTHEON_V2
-          slug: test-article
+          contentType: "TREE_PANTHEON_V2"
+          slug: "test-article"
         ) {
           id
           previewActiveUntil
@@ -88,11 +88,11 @@ class PccSiteViewQueryTest extends UnitTestCase {
       'multiple_fields_query' => [
         'fields' => ['id', 'title', 'body', 'author'],
         'conditions' => [
-          ['field' => 'id', 'value' => '123'],
+          ['field' => 'id', 'value' => 123],
         ],
         'expected_query' => <<<GRAPHQL
         article (
-          contentType: TREE_PANTHEON_V2
+          contentType: "TREE_PANTHEON_V2"
           id: 123
         ) {
           id
@@ -169,8 +169,17 @@ class PccSiteViewQueryTest extends UnitTestCase {
     }
 
     $actual_query = $this->query->query();
-    $normalize = fn ($string) =>  preg_replace('/\s+/', ' ', $string);
-    $this->assertEquals($normalize($expected_query), $normalize($actual_query));
+    $this->assertEquals($this->normalize($expected_query), $this->normalize($actual_query));
+  }
+
+  /**
+   * Remove whitespace and insignificant commas from a GraphQL query.
+   */
+  protected function normalize($query) {
+    $query = preg_replace('/\s+|,/', ' ', $query);
+    $query = preg_replace('/\s*([({:])\s*/', '\1', $query);
+    $query = preg_replace('/\s+([})])/', '\1', $query);
+    return $query;
   }
 
   /**

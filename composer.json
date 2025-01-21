@@ -18,6 +18,7 @@
     }
   },
   "require": {
-    "pantheon-systems/pcc-php-sdk": "^0.0.1"
+    "pantheon-systems/pcc-php-sdk": "^0.0.1",
+    "dpauli/graphql-request-builder": "^1.8"
   }
 }

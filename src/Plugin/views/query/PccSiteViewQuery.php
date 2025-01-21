@@ -8,6 +8,8 @@ use Drupal\views\Plugin\views\display\DisplayPluginBase;
 use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
+use GraphQL\RequestBuilder\Argument;
+use GraphQL\RequestBuilder\Type;
 use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
@@ -264,41 +266,20 @@ class PccSiteViewQuery extends QueryPluginBase {
    * Generates a GRAPHQL query.
    */
   public function query($get_count = FALSE) {
-    $query_condition = "( \n  contentType: TREE_PANTHEON_V2";
+    $type = new Type($this->contextualFilters ? 'article' : 'articles');
+    $type->addArgument(new Argument('contentType', 'TREE_PANTHEON_V2'));
+
     if ($this->where) {
       foreach ($this->where as $group) {
         foreach ($group['conditions'] as $condition) {
           $field = str_replace('.', '', $condition['field']);
           $value = $condition['value'];
-          $query_condition .= "\n  $field: $value\n";
+          $type->addArgument(new Argument($field, $value));
         }
       }
     }
-    $query_condition .= ")";
-    $query_fields = '';
-    if ($this->fields) {
-      $index = 0;
-      foreach ($this->fields as $field) {
-        $field_alias = $field['alias'];
-        if ($index > 0) {
-          $query_fields .= "\n  $field_alias";
-        }
-        else {
-          $query_fields .= "$field_alias";
-        }
-        $index++;
-      }
-    }
-    $entity = 'articles';
-    if (!empty($this->contextualFilters)) {
-      $entity = 'article';
-    }
-    $query = <<<GRAPHQL
-    $entity $query_condition {
-      $query_fields
-    }
-    GRAPHQL;
-    return $query;
+    $type->addSubTypes(array_column($this->fields, 'alias'));
+    return (string) $type;
   }
 
   /**

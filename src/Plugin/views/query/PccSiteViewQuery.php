@@ -13,112 +13,40 @@ use Symfony\Component\DependencyInjection\ContainerInterface;
 use Symfony\Component\HttpFoundation\RequestStack;
 
 /**
- * Defines a Views query class for Config Entities.
+ * Defines a Views query class for PCC sites.
  *
  * @ViewsQuery(
  *   id = "pcc_site_view_query",
- *   title = @Translation("Configuration Entity"),
- *   help = @Translation("Configuration Entity Query")
+ *   title = @Translation("PCC site"),
+ *   help = @Translation("PCC site query")
  * )
  */
 class PccSiteViewQuery extends QueryPluginBase {
+
+  const DEFAULTITEMSPERPAGE = 20;
+
   /**
    * An array of sections of the WHERE query.
    *
-   * Each section is in itself an array of pieces and a flag as to whether or
-   * not it should be AND or OR.
-   *
-   * @var array
+   * @see \Drupal\views\Plugin\views\query\Sql::where()
    */
-
-  public $where = [];
-
-  /**
-   * Number of results to display.
-   *
-   * @var int
-   */
-  protected $limit;
-
-  /**
-   * The index this view accesses.
-   *
-   * @var \Drupal\pcx_connect\Entity\PccSite
-   */
-  protected $index;
-
-  /**
-   * The graphql query that will be executed.
-   *
-   * @var string
-   */
-  protected string $query;
-
-  /**
-   * Array of all encountered errors.
-   *
-   * Each of these is fatal, meaning that a non-empty $errors property will
-   * result in an empty result being returned.
-   *
-   * @var array
-   */
-  protected $errors = [];
-
-  /**
-   * Whether to abort the search instead of executing it.
-   *
-   * @var bool
-   */
-  protected $abort = FALSE;
-
-  /**
-   * An array mapping table aliases and field names to field aliases.
-   *
-   * @var array
-   */
-  protected $fieldAliases = [];
-
-  /**
-   * The IDs of fields whose values should be retrieved by the backend.
-   *
-   * @var string[]
-   */
-  protected $retrievedFieldValues = [];
+  protected array $where = [];
 
   /**
    * An array of fields.
-   *
-   * @var array
    */
-  public $fields = [];
+  public array $fields = [];
 
-  /**
-   * A simple array of order by clauses.
-   *
-   * @var array
-   */
-  public $orderby = [];
-
-  /**
-   * PCC Content API service.
-   *
-   * @var \Drupal\pcx_connect\Pcc\Service\PccArticlesApiInterface
-   */
   protected PccArticlesApiInterface $pccContentApi;
 
-  /**
-   * Contextual filters.
-   *
-   * @var array
-   */
-  protected $contextualFilters = [];
+  protected array $contextualFilters = [];
 
   /**
    * The site token.
    *
    * @var string
    */
-  protected $siteToken = '';
+  protected string $siteToken = '';
 
   /**
    * The site key.
@@ -178,63 +106,28 @@ class PccSiteViewQuery extends QueryPluginBase {
    * {@inheritdoc}
    */
   public function init(ViewExecutable $view, DisplayPluginBase $display, array &$options = NULL) {
-    try {
-      parent::init($view, $display, $options);
-      $base_table = $view->storage->get('base_table');
-      $this->index = PccSite::load($base_table);
-      if (!$this->index) {
-        $this->abort(new FormattableMarkup('View %view is not based on PCC Site API but tries to use its query plugin.', ['%view' => $view->storage->label()]));
-      }
-      $this->query = $this->query();
+    parent::init($view, $display, $options);
+    $base_table = $view->storage->get('base_table');
+    if (!PccSite::load($base_table)) {
+      throw new \LogicException($this->t('View %view is not based on PCC Site API but tries to use its query plugin.', ['%view' => $view->storage->label()]));
     }
-    catch (\Exception $e) {
-      $this->abort($e->getMessage());
-    }
-  }
-
-  /**
-   * Aborts this PCC Site query.
-   *
-   * Used by handlers to flag a fatal error which shouldn't be displayed but
-   * still lead to the view returning empty and the search not being executed.
-   *
-   * @param \Drupal\Component\Render\MarkupInterface|string|null $msg
-   *   Optionally, a translated, unescaped error message to display.
-   */
-  public function abort($msg = NULL) {
-    if ($msg) {
-      $this->errors[] = $msg;
-    }
-    $this->abort = TRUE;
-    if (isset($this->query)) {
-      $this->abort($msg);
-    }
-  }
-
-  /**
-   * Ensures a table exists in the query.
-   *
-   * @return string
-   *   An empty string.
-   */
-  public function ensureTable(): string {
-    return '';
   }
 
   /**
    * Adds a field to the table.
    *
    * @param string|null $table
-   *   Ignored.
+   *  If this the PCC site ID and $field is the string id then $alias is
+   *  overridden to be the string id. Otherwise, this is currently unused.
    * @param string $field
    *   The combined property path of the property that should be retrieved.
    * @param string $alias
-   *   (optional) Ignored.
+   *   The field alias. (Optional.)
    * @param array $params
-   *   (optional) Ignored.
+   *   Additional parameters. (Currently unused.)
    *
    * @return string
-   *   The name that this field can be referred to as (always $field).
+   *   The alias this field can be referred to as.
    *
    * @see \Drupal\views\Plugin\views\query\Sql::addField()
    */
@@ -248,7 +141,7 @@ class PccSiteViewQuery extends QueryPluginBase {
     }
 
     // Make sure an alias is assigned.
-    $alias = $alias ? $alias : $field;
+    $alias = $alias ?: $field;
 
     // PostgreSQL truncates aliases to 63 characters:
     // https://www.drupal.org/node/571548.
@@ -277,17 +170,14 @@ class PccSiteViewQuery extends QueryPluginBase {
       $this->fields[$alias] = $field_info;
     }
 
-    // Harcoded field.
+    // Hardcoded field.
     $this->fields['previewActiveUntil'] = [
-      "field" => "previewActiveUntil",
-      "table" => "",
-      "alias" => "previewActiveUntil",
+      'field' => 'previewActiveUntil',
+      'table' => '',
+      'alias' => 'previewActiveUntil',
     ];
 
-    // Keep track of all aliases used.
-    $this->fieldAliases[$table][$field] = $alias;
     return $alias;
-
   }
 
   /**
@@ -362,46 +252,10 @@ class PccSiteViewQuery extends QueryPluginBase {
   /**
    * Add an ORDER BY clause to the query.
    *
-   * @param string|null $table
-   *   The table this field is part of. If a formula, enter NULL.
-   *   If you want to orderby random use "rand" as table and nothing else.
-   * @param string|null $field
-   *   The field or formula to sort on. If already a field, enter NULL
-   *   and put in the alias.
-   * @param string $order
-   *   Either ASC or DESC.
-   * @param string $alias
-   *   The alias to add the field as. In SQL, all fields in the order by
-   *   must also be in the SELECT portion. If an $alias isn't specified
-   *   one will be generated for from the $field; however, if the
-   *   $field is a formula, this alias will likely fail.
-   * @param array $params
-   *   Any params that should be passed through to the addField.
+   * @see \Drupal\views\Plugin\views\query\Sql::addOrderBy()
    */
   public function addOrderBy($table, $field = NULL, $order = 'ASC', $alias = '', $params = []) {
-    // Only ensure the table if it's not the special random key.
-    // @todo Maybe it would make sense to just add an addOrderByRand or something similar.
-    if ($table && $table != 'rand') {
-      $this->ensureTable($table);
-    }
-
-    // Only fill out this aliasing if there is a table;
-    // otherwise we assume it is a formula.
-    if (!$alias && $table) {
-      $as = $table . '_' . $field;
-    }
-    else {
-      $as = $alias;
-    }
-
-    if ($field) {
-      $as = $this->addField($table, $field, $as, $params);
-    }
-
-    $this->orderby[] = [
-      'field' => $as,
-      'direction' => strtoupper($order),
-    ];
+    // @TODO Implement this?
   }
 
   /**
@@ -490,8 +344,7 @@ class PccSiteViewQuery extends QueryPluginBase {
     // Convert to milliseconds.
     $default_cursor = (time() * 1000);
 
-    $items_per_page = 20;
-    $total_articles = 20;
+    $items_per_page = self::DEFAULTITEMSPERPAGE;
     $current_page = 0;
     if ($view->pager->getCurrentPage()) {
       $current_page = $view->pager->getCurrentPage();

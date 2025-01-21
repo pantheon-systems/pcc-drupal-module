@@ -76,7 +76,7 @@ class PccSiteViewQueryTest extends UnitTestCase {
         ],
         'expected_query' => <<<GRAPHQL
         article (
-          contentType: "TREE_PANTHEON_V2"
+          contentType: TREE_PANTHEON_V2
           slug: "test-article"
         ) {
           id
@@ -92,7 +92,7 @@ class PccSiteViewQueryTest extends UnitTestCase {
         ],
         'expected_query' => <<<GRAPHQL
         article (
-          contentType: "TREE_PANTHEON_V2"
+          contentType: TREE_PANTHEON_V2
           id: 123
         ) {
           id

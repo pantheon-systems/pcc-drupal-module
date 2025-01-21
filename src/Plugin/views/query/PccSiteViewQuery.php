@@ -9,6 +9,7 @@ use Drupal\views\Plugin\views\query\QueryPluginBase;
 use Drupal\views\ResultRow;
 use Drupal\views\ViewExecutable;
 use GraphQL\RequestBuilder\Argument;
+use GraphQL\RequestBuilder\EnumArgument;
 use GraphQL\RequestBuilder\Type;
 use PccPhpSdk\api\Query\Enums\PublishingLevel;
 use Symfony\Component\DependencyInjection\ContainerInterface;
@@ -267,7 +268,7 @@ class PccSiteViewQuery extends QueryPluginBase {
    */
   public function query($get_count = FALSE) {
     $type = new Type($this->contextualFilters ? 'article' : 'articles');
-    $type->addArgument(new Argument('contentType', 'TREE_PANTHEON_V2'));
+    $type->addArgument(new EnumArgument('contentType', 'TREE_PANTHEON_V2'));
 
     if ($this->where) {
       foreach ($this->where as $group) {

@@ -2,9 +2,12 @@
 
 namespace Drupal\pcx_connect\Entity;
 
+use Drupal\Core\Cache\CacheBackendInterface;
 use Drupal\Core\Config\Entity\ConfigEntityBase;
 use Drupal\Core\Entity\EntityStorageInterface;
+use Drupal\Core\Extension\ModuleHandlerInterface;
 use Drupal\pcx_connect\PccSiteInterface;
+use Drupal\views\ViewsData;
 
 /**
  * Defines the PCC Site entity.
@@ -40,41 +43,23 @@ use Drupal\pcx_connect\PccSiteInterface;
  * )
  */
 class PccSite extends ConfigEntityBase implements PccSiteInterface {
-  /**
-   * The module handler.
-   *
-   * @var \Drupal\Core\Extension\ModuleHandlerInterface
-   */
-  protected $module_handler;
 
-  /**
-   * The views data service.
-   *
-   * @var \Drupal\views\ViewsData
-   */
-  protected $views_data;
+  protected ModuleHandlerInterface $module_handler;
+
+  protected ViewsData $views_data;
 
 
-  /**
-   * The cache backend.
-   *
-   * @var \Drupal\Core\Cache\CacheBackendInterface
-   */
-  protected $cache_discovery;
+  protected CacheBackendInterface $cache_discovery;
 
-  /**
-   * The PCC Site ID.
-   *
-   * @var string
-   */
-  protected $id;
+  protected string $id;
 
-  /**
-   * The pcc site label.
-   *
-   * @var string
-   */
-  protected $label;
+  protected string $label;
+
+  protected string $site_key;
+
+  protected string $site_token;
+
+  protected string $site_url;
 
   /**
    * {@inheritdoc}

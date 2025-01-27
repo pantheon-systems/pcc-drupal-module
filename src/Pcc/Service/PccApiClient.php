@@ -34,7 +34,7 @@ class PccApiClient {
     if (!empty($this->pccClientList) && !empty($this->pccClientList[$siteId]) && !$refresh) {
       return $this->pccClientList[$siteId];
     }
-    $client_config = new PccClientConfig($siteId, $siteToken);
+    $client_config = new PccClientConfig($siteId, $siteToken, 'https://gql.staging.pcc.pantheon.io/');
     $this->pccClientList[$siteId] = new PccClient($client_config);
 
     return $this->pccClientList[$siteId];

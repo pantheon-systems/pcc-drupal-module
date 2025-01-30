@@ -2,7 +2,7 @@
 
 namespace Drupal\pcx_connect\Pcc\Service;
 
-use Drupal\Core\Logger\LoggerChannelFactory;
+use Drupal\Core\Logger\LoggerChannelFactoryInterface;
 use Drupal\Core\Logger\LoggerChannelInterface;
 use Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface;
 use PccPhpSdk\api\ArticlesApi;
@@ -55,7 +55,7 @@ class PccArticlesApi implements PccArticlesApiInterface {
    *   The pcc api client.
    * @param \\Drupal\pcx_connect\Pcc\Mapper\PccArticlesMapperInterface $pccArticlesMapper
    *   The PCC article mapper.
-   * @param \Drupal\Core\Logger\LoggerChannelFactory $loggerChannelFactory
+   * @param \Drupal\Core\Logger\LoggerChannelFactoryInterface $loggerChannelFactory
    *   Logger Channel Factory.
    */
   public function __construct(PccApiClient $pccApiClient, PccArticlesMapperInterface $pccArticlesMapper, LoggerChannelFactoryInterface $loggerChannelFactory) {

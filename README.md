@@ -1,6 +1,6 @@
 # ARCHIVED
 
-This repository has been archived in favor of a substantially rewritten integration module: https://www.drupal.org/project/pantheon_content_publisher
+This repository has been archived in favor of a substantially rewritten [integration module](https://www.drupal.org/project/pantheon_content_publisher).
 
 ---------------------
 

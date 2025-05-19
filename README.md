@@ -4,7 +4,6 @@ This repository has been archived in favor of a substantially rewritten integrat
 
 ---------------------
 
-
 # PCX Connect | PCC Integration
 
 Drupal Module for PCC Integration
